@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="httpbin_DEMO" tests="8" time="1.374">
+  <testsuite name="001.bearer / 001.001.Comprobar token Bearer / TC.001.001.200 Successfull" id="bae26c79-fa00-4428-bcf8-12a6e834d346" timestamp="2026-09-22T23:56:25.753Z" tests="2" failures="0" errors="0" time="0.473">
+    <testcase name="Status code is 200" time="0.473" classname="001Bearer001001ComprobarTokenBearerTc001001200Successfull"/>
+    <testcase name="Schema is valid according to AJV" time="0.473" classname="001Bearer001001ComprobarTokenBearerTc001001200Successfull"/>
+  </testsuite>
+  <testsuite name="001.bearer / 001.001.Comprobar token Bearer / TC.001.001.401 Unauthorized" id="a25de3e6-3927-4bcf-82f6-8ccd6bc859b0" timestamp="2026-09-22T23:56:25.753Z" tests="1" failures="0" errors="0" time="0.106">
+    <testcase name="Status code is 401" time="0.106" classname="001Bearer001001ComprobarTokenBearerTc001001401Unauthorized"/>
+  </testsuite>
+  <testsuite name="002.post / 002.001.Enviar mascota / TC.002.001.200 Successfull" id="6ea37ab6-9e0f-4b3d-acad-984b625eabdf" timestamp="2026-09-22T23:56:25.753Z" tests="2" failures="0" errors="0" time="0.114">
+    <testcase name="Status code is 200" time="0.114" classname="002Post002001EnviarMascotaTc002001200Successfull"/>
+    <testcase name="Schema is valid according to AJV" time="0.114" classname="002Post002001EnviarMascotaTc002001200Successfull"/>
+  </testsuite>
+  <testsuite name="002.post / 002.001.Enviar mascota / TC.002.001.400a Error without.name" id="186f0b2f-2dc1-4f64-92ca-9863c2f748c0" timestamp="2026-09-22T23:56:25.753Z" tests="1" failures="1" errors="0" time="0.196">
+    <testcase name="Status code is 400" time="0.196" classname="002Post002001EnviarMascotaTc002001400AErrorWithoutName">
+      <failure type="AssertionFailure" message="expected response to have status code 400 but got 200">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 8680b1d9-579c-43d2-8035-991b269c31e0.]]>
+        <![CDATA[Collection name: httpbin_DEMO.]]>
+        <![CDATA[Request name: 002.post / 002.001.Enviar mascota / TC.002.001.400a Error without.name.]]>
+        <![CDATA[Test description: Status code is 400.]]>
+        <![CDATA[Error message: expected response to have status code 400 but got 200.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 400 but got 200
+   at Object.eval sandbox-script.js:1:4).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="002.post / 002.001.Enviar mascota / TC.002.001.400b Error without.age" id="95b90b74-6d64-4255-a972-4dc948d6a80a" timestamp="2026-09-22T23:56:25.753Z" tests="1" failures="1" errors="0" time="0.165">
+    <testcase name="Status code is 400" time="0.165" classname="002Post002001EnviarMascotaTc002001400BErrorWithoutAge">
+      <failure type="AssertionFailure" message="expected response to have status code 400 but got 200">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 8680b1d9-579c-43d2-8035-991b269c31e0.]]>
+        <![CDATA[Collection name: httpbin_DEMO.]]>
+        <![CDATA[Request name: 002.post / 002.001.Enviar mascota / TC.002.001.400b Error without.age.]]>
+        <![CDATA[Test description: Status code is 400.]]>
+        <![CDATA[Error message: expected response to have status code 400 but got 200.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 400 but got 200
+   at Object.eval sandbox-script.js:1:5).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="002.post / 002.001.Enviar mascota / TC.002.001.400c Error with.name.wrong" id="3af579af-75f5-45bc-9296-f2de6b39c354" timestamp="2026-09-22T23:56:25.753Z" tests="1" failures="1" errors="0" time="0.106">
+    <testcase name="Status code is 400" time="0.106" classname="002Post002001EnviarMascotaTc002001400CErrorWithNameWrong">
+      <failure type="AssertionFailure" message="expected response to have status code 400 but got 200">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 8680b1d9-579c-43d2-8035-991b269c31e0.]]>
+        <![CDATA[Collection name: httpbin_DEMO.]]>
+        <![CDATA[Request name: 002.post / 002.001.Enviar mascota / TC.002.001.400c Error with.name.wrong.]]>
+        <![CDATA[Test description: Status code is 400.]]>
+        <![CDATA[Error message: expected response to have status code 400 but got 200.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 400 but got 200
+   at Object.eval sandbox-script.js:1:6).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="002.post / 002.001.Enviar mascota / TC.002.001.400d Error with.age.wrong" id="ca44ef90-5bcb-47bb-9117-4e0217566686" timestamp="2026-09-22T23:56:25.753Z" tests="1" failures="1" errors="0" time="0.108">
+    <testcase name="Status code is 400" time="0.108" classname="002Post002001EnviarMascotaTc002001400DErrorWithAgeWrong">
+      <failure type="AssertionFailure" message="expected response to have status code 400 but got 200">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 8680b1d9-579c-43d2-8035-991b269c31e0.]]>
+        <![CDATA[Collection name: httpbin_DEMO.]]>
+        <![CDATA[Request name: 002.post / 002.001.Enviar mascota / TC.002.001.400d Error with.age.wrong.]]>
+        <![CDATA[Test description: Status code is 400.]]>
+        <![CDATA[Error message: expected response to have status code 400 but got 200.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 400 but got 200
+   at Object.eval sandbox-script.js:1:7).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="002.post / 002.001.Enviar mascota / TC.002.001.400e Error with.vaccinated.wrong" id="1ccbbe10-7cff-4e97-ad70-96651a58422a" timestamp="2026-09-22T23:56:25.753Z" tests="1" failures="1" errors="0" time="0.106">
+    <testcase name="Status code is 400" time="0.106" classname="002Post002001EnviarMascotaTc002001400EErrorWithVaccinatedWrong">
+      <failure type="AssertionFailure" message="expected response to have status code 400 but got 200">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 8680b1d9-579c-43d2-8035-991b269c31e0.]]>
+        <![CDATA[Collection name: httpbin_DEMO.]]>
+        <![CDATA[Request name: 002.post / 002.001.Enviar mascota / TC.002.001.400e Error with.vaccinated.wrong.]]>
+        <![CDATA[Test description: Status code is 400.]]>
+        <![CDATA[Error message: expected response to have status code 400 but got 200.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 400 but got 200
+   at Object.eval sandbox-script.js:1:8).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+</testsuites>

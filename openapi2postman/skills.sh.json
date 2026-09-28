@@ -1,0 +1,15 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "openapi2postman",
+      "description": "Skills para generar y ejecutar contract tests (colecciones Postman) a partir de OpenAPI usando openapi2postman (apiaddicts/openapi2postman).",
+      "skills": [
+        "instalar-openapi2postman",
+        "generar-coleccion-postman",
+        "ejecutar-pruebas-postman"
+      ]
+    }
+  ]
+}

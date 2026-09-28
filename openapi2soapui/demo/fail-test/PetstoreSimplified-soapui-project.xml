@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project id="82893920-72a9-46a3-86e2-4872169528b9" activeEnvironment="Default" name="PetstoreSimplified_1.0.0" soapui-version="5.9.1" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:RestService" id="e26ee490-34f7-4290-be9d-6522da211b37" wadlVersion="http://wadl.dev.java.net/2009/02" name="PetstoreSimplified" type="rest" basePath="/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:description>Simplified Petstore API with only GET /pet/findByStatus</con:description><con:settings/><con:definitionCache/><con:endpoints><con:endpoint>https://petstore.swagger.io</con:endpoint></con:endpoints><con:resource name="/pet/findByStatus" path="/pet/findByStatus" id="545149ce-1705-4a0b-a25a-3f2205680a5a"><con:settings/><con:parameters/><con:method name="findPetsByStatus" id="04721cc2-b945-44eb-bfdb-a2a0c2a37c26" method="GET"><con:settings/><con:parameters><con:parameter required="true"><con:name>status</con:name><con:style>QUERY</con:style><con:description>Status values that need to be considered for filter</con:description></con:parameter></con:parameters><con:representation type="RESPONSE"><con:mediaType>application/json</con:mediaType><con:status>200</con:status><con:params/></con:representation><con:representation type="RESPONSE"><con:mediaType>application/json</con:mediaType><con:status>400</con:status><con:params/></con:representation><con:request name="Request 1" id="ee83f9fa-2f08-4019-a820-b82c136a3946" mediaType="application/json"><con:settings/><con:endpoint>https://petstore.swagger.io</con:endpoint><con:originalUri>https://petstore.swagger.io/v2/pet/findByStatus</con:originalUri><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters/><con:parameterOrder><con:entry>status</con:entry></con:parameterOrder></con:request><con:request name="OkAllProperties" id="ee83f9fa-2f08-4019-a820-b82c136a3946" mediaType="application/json"><con:settings/><con:endpoint>https://petstore.swagger.io</con:endpoint><con:originalUri>https://petstore.swagger.io/v2/pet/findByStatus</con:originalUri><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters><con:entry key="status" value="available"/></con:parameters><con:parameterOrder><con:entry>status</con:entry></con:parameterOrder></con:request><con:request name="OkRequiredProperties" id="ee83f9fa-2f08-4019-a820-b82c136a3946" mediaType="application/json"><con:settings/><con:endpoint>https://petstore.swagger.io</con:endpoint><con:originalUri>https://petstore.swagger.io/v2/pet/findByStatus</con:originalUri><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters><con:entry key="status" value="available"/></con:parameters><con:parameterOrder><con:entry>status</con:entry></con:parameterOrder></con:request><con:request name="ErrorStatusCode400" id="ee83f9fa-2f08-4019-a820-b82c136a3946" mediaType="application/json"><con:settings/><con:endpoint>https://petstore.swagger.io</con:endpoint><con:originalUri>https://petstore.swagger.io/v2/pet/findByStatus</con:originalUri><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters><con:entry key="status" value="available"/></con:parameters><con:parameterOrder><con:entry>status</con:entry></con:parameterOrder></con:request><con:request name="ErrorRequiredstatus" id="ee83f9fa-2f08-4019-a820-b82c136a3946" mediaType="application/json"><con:settings/><con:endpoint>https://petstore.swagger.io</con:endpoint><con:originalUri>https://petstore.swagger.io/v2/pet/findByStatus</con:originalUri><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters><con:entry key="status" value=""/></con:parameters><con:parameterOrder><con:entry>status</con:entry></con:parameterOrder></con:request></con:method></con:resource></con:interface><con:testSuite id="44bf02a5-4b13-4bba-931e-b0727aa929c4" name="/pet/findByStatus_PetstoreSimplified_1.0.0-GET-Suite" abortOnError="false"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase id="bbc0e012-bb49-4d18-93f6-0807b8c70fc7" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="GET_CaseOkAllProperties" searchProperties="true"><con:settings/><con:testStep type="restrequest" name="Execution_TestStep" id="83487d8d-a219-4dc6-8f7d-73be16e4fdb2"><con:settings/><con:config service="PetstoreSimplified" resourcePath="/v2/pet/findByStatus" methodName="findPetsByStatus" xsi:type="con:RestRequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:restRequest name="Execution_TestStep" id="ee83f9fa-2f08-4019-a820-b82c136a3946" mediaType="application/json"><con:settings/><con:endpoint>https://petstore.swagger.io</con:endpoint><con:originalUri>https://petstore.swagger.io/v2/pet/findByStatus</con:originalUri><con:assertion type="Valid HTTP Status Codes" id="73ae359d-27c3-4d4d-bf69-62b06dabbe35" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="GroovyScriptAssertion" id="9171dd3f-e962-4d03-ab71-caf8d63aa13b" name="Script Assertion"><con:configuration><scriptText><![CDATA[def json = null
+try {
+    json = new groovy.json.JsonSlurper().parseText(messageExchange.responseContent)
+} catch (Exception e) {
+    assert false : "A JSON response was expected"
+}
+
+def schema = new groovy.json.JsonSlurper().parseText(context.expand('${#Project#schema1}'))
+
+def errors = []
+def validateNode
+validateNode = { instance, sch, path ->
+    if (sch == null) { return }
+    if (instance == null) {
+        if (!(sch.nullable == true)) { errors << (path + ": expected non-null value") }
+        return
+    }
+    if (sch.enum != null) {
+        if (!sch.enum.contains(instance)) {
+            errors << (path + ": value is not one of the allowed enum values")
+        }
+        return
+    }
+    if (sch.anyOf != null) {
+        def matched = false
+        for (candidate in sch.anyOf) {
+            def before = errors.size()
+            validateNode(instance, candidate, path)
+            if (errors.size() == before) { matched = true; break }
+            while (errors.size() > before) { errors.remove(errors.size() - 1) }
+        }
+        if (!matched) { errors << (path + ": does not match any of the expected schemas") }
+        return
+    }
+    switch (sch.type) {
+        case 'object':
+            if (!(instance instanceof Map)) { errors << (path + ": expected object"); return }
+            (sch.required ?: []).each { req -> if (!instance.containsKey(req)) { errors << (path + "." + req + ": required property missing") } }
+            (sch.properties ?: [:]).each { propName, propSchema -> if (instance.containsKey(propName)) { validateNode(instance[propName], propSchema, path + "." + propName) } }
+            if (sch.additionalProperties == false) {
+                def allowedProps = (sch.properties ?: [:]).keySet()
+                instance.keySet().each { key -> if (!allowedProps.contains(key)) { errors << (path + "." + key + ": additional property not allowed") } }
+            }
+            break
+        case 'array':
+            if (!(instance instanceof List)) { errors << (path + ": expected array"); return }
+            if (sch.minItems != null && instance.size() < sch.minItems) { errors << (path + ": fewer than minItems " + sch.minItems) }
+            if (sch.maxItems != null && instance.size() > sch.maxItems) { errors << (path + ": more than maxItems " + sch.maxItems) }
+            if (sch.uniqueItems == true && instance.size() != (instance as Set).size()) { errors << (path + ": items are not unique") }
+            instance.eachWithIndex { item, idx -> validateNode(item, sch.items, path + "[" + idx + "]") }
+            break
+        case 'string':
+            if (!(instance instanceof String)) { errors << (path + ": expected string"); return }
+            if (sch.pattern && !(instance =~ sch.pattern).find()) { errors << (path + ": does not match pattern '" + sch.pattern + "'") }
+            if (sch.format == 'email' && !(instance ==~ /^[^@\s]+@[^@\s]+\.[^@\s]+$/)) { errors << (path + ": does not match format 'email'") }
+            if (sch.format == 'uuid' && !(instance ==~ /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/)) { errors << (path + ": does not match format 'uuid'") }
+            if (sch.format == 'date' && !(instance ==~ /^\d{4}-\d{2}-\d{2}$/)) { errors << (path + ": does not match format 'date'") }
+            if (sch.format == 'date-time' && !(instance ==~ /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?$/)) { errors << (path + ": does not match format 'date-time'") }
+            if (sch.minLength != null && instance.length() < sch.minLength) { errors << (path + ": shorter than minLength " + sch.minLength) }
+            if (sch.maxLength != null && instance.length() > sch.maxLength) { errors << (path + ": longer than maxLength " + sch.maxLength) }
+            break
+        case 'integer':
+            if (!(instance instanceof Integer || instance instanceof Long || instance instanceof BigInteger || (instance instanceof BigDecimal && instance.scale() <= 0))) { errors << (path + ": expected integer"); return }
+            if (sch.minimum != null && new BigDecimal(instance.toString()).compareTo(new BigDecimal(sch.minimum.toString())) < 0) { errors << (path + ": below minimum " + sch.minimum) }
+            if (sch.maximum != null && new BigDecimal(instance.toString()).compareTo(new BigDecimal(sch.maximum.toString())) > 0) { errors << (path + ": above maximum " + sch.maximum) }
+            break
+        case 'number':
+            if (!(instance instanceof Number)) { errors << (path + ": expected number"); return }
+            if (sch.minimum != null && new BigDecimal(instance.toString()).compareTo(new BigDecimal(sch.minimum.toString())) < 0) { errors << (path + ": below minimum " + sch.minimum) }
+            if (sch.maximum != null && new BigDecimal(instance.toString()).compareTo(new BigDecimal(sch.maximum.toString())) > 0) { errors << (path + ": above maximum " + sch.maximum) }
+            break
+        case 'boolean':
+            if (!(instance instanceof Boolean)) { errors << (path + ": expected boolean") }
+            break
+        default:
+            break
+    }
+}
+
+validateNode(json, schema, '$')
+
+assert errors.isEmpty() : "Response body does not match the expected JSON Schema: " + errors.join('; ')]]></scriptText></con:configuration></con:assertion><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters><con:entry key="status" value="available"/></con:parameters><con:parameterOrder><con:entry>status</con:entry></con:parameterOrder></con:restRequest></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="d62cc809-bf77-48c2-a8db-d352781b57a6" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="GET_CaseOkRequiredProperties" searchProperties="true"><con:settings/><con:testStep type="restrequest" name="Execution_TestStep" id="2fba7a76-2dcc-46d3-aad7-6d08bda7a836"><con:settings/><con:config service="PetstoreSimplified" resourcePath="/v2/pet/findByStatus" methodName="findPetsByStatus" xsi:type="con:RestRequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:restRequest name="Execution_TestStep" id="ee83f9fa-2f08-4019-a820-b82c136a3946" mediaType="application/json"><con:settings/><con:endpoint>https://petstore.swagger.io</con:endpoint><con:originalUri>https://petstore.swagger.io/v2/pet/findByStatus</con:originalUri><con:assertion type="Valid HTTP Status Codes" id="72ac4e25-080a-40a5-900a-24cf4ea02b62" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="GroovyScriptAssertion" id="e061cb39-6467-47fb-b24b-e5bec6ed4084" name="Script Assertion"><con:configuration><scriptText><![CDATA[def json = null
+try {
+    json = new groovy.json.JsonSlurper().parseText(messageExchange.responseContent)
+} catch (Exception e) {
+    assert false : "A JSON response was expected"
+}
+
+def schema = new groovy.json.JsonSlurper().parseText(context.expand('${#Project#schema2}'))
+
+def errors = []
+def validateNode
+validateNode = { instance, sch, path ->
+    if (sch == null) { return }
+    if (instance == null) {
+        if (!(sch.nullable == true)) { errors << (path + ": expected non-null value") }
+        return
+    }
+    if (sch.enum != null) {
+        if (!sch.enum.contains(instance)) {
+            errors << (path + ": value is not one of the allowed enum values")
+        }
+        return
+    }
+    if (sch.anyOf != null) {
+        def matched = false
+        for (candidate in sch.anyOf) {
+            def before = errors.size()
+            validateNode(instance, candidate, path)
+            if (errors.size() == before) { matched = true; break }
+            while (errors.size() > before) { errors.remove(errors.size() - 1) }
+        }
+        if (!matched) { errors << (path + ": does not match any of the expected schemas") }
+        return
+    }
+    switch (sch.type) {
+        case 'object':
+            if (!(instance instanceof Map)) { errors << (path + ": expected object"); return }
+            (sch.required ?: []).each { req -> if (!instance.containsKey(req)) { errors << (path + "." + req + ": required property missing") } }
+            (sch.properties ?: [:]).each { propName, propSchema -> if (instance.containsKey(propName)) { validateNode(instance[propName], propSchema, path + "." + propName) } }
+            if (sch.additionalProperties == false) {
+                def allowedProps = (sch.properties ?: [:]).keySet()
+                instance.keySet().each { key -> if (!allowedProps.contains(key)) { errors << (path + "." + key + ": additional property not allowed") } }
+            }
+            break
+        case 'array':
+            if (!(instance instanceof List)) { errors << (path + ": expected array"); return }
+            if (sch.minItems != null && instance.size() < sch.minItems) { errors << (path + ": fewer than minItems " + sch.minItems) }
+            if (sch.maxItems != null && instance.size() > sch.maxItems) { errors << (path + ": more than maxItems " + sch.maxItems) }
+            if (sch.uniqueItems == true && instance.size() != (instance as Set).size()) { errors << (path + ": items are not unique") }
+            instance.eachWithIndex { item, idx -> validateNode(item, sch.items, path + "[" + idx + "]") }
+            break
+        case 'string':
+            if (!(instance instanceof String)) { errors << (path + ": expected string"); return }
+            if (sch.pattern && !(instance =~ sch.pattern).find()) { errors << (path + ": does not match pattern '" + sch.pattern + "'") }
+            if (sch.format == 'email' && !(instance ==~ /^[^@\s]+@[^@\s]+\.[^@\s]+$/)) { errors << (path + ": does not match format 'email'") }
+            if (sch.format == 'uuid' && !(instance ==~ /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/)) { errors << (path + ": does not match format 'uuid'") }
+            if (sch.format == 'date' && !(instance ==~ /^\d{4}-\d{2}-\d{2}$/)) { errors << (path + ": does not match format 'date'") }
+            if (sch.format == 'date-time' && !(instance ==~ /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?$/)) { errors << (path + ": does not match format 'date-time'") }
+            if (sch.minLength != null && instance.length() < sch.minLength) { errors << (path + ": shorter than minLength " + sch.minLength) }
+            if (sch.maxLength != null && instance.length() > sch.maxLength) { errors << (path + ": longer than maxLength " + sch.maxLength) }
+            break
+        case 'integer':
+            if (!(instance instanceof Integer || instance instanceof Long || instance instanceof BigInteger || (instance instanceof BigDecimal && instance.scale() <= 0))) { errors << (path + ": expected integer"); return }
+            if (sch.minimum != null && new BigDecimal(instance.toString()).compareTo(new BigDecimal(sch.minimum.toString())) < 0) { errors << (path + ": below minimum " + sch.minimum) }
+            if (sch.maximum != null && new BigDecimal(instance.toString()).compareTo(new BigDecimal(sch.maximum.toString())) > 0) { errors << (path + ": above maximum " + sch.maximum) }
+            break
+        case 'number':
+            if (!(instance instanceof Number)) { errors << (path + ": expected number"); return }
+            if (sch.minimum != null && new BigDecimal(instance.toString()).compareTo(new BigDecimal(sch.minimum.toString())) < 0) { errors << (path + ": below minimum " + sch.minimum) }
+            if (sch.maximum != null && new BigDecimal(instance.toString()).compareTo(new BigDecimal(sch.maximum.toString())) > 0) { errors << (path + ": above maximum " + sch.maximum) }
+            break
+        case 'boolean':
+            if (!(instance instanceof Boolean)) { errors << (path + ": expected boolean") }
+            break
+        default:
+            break
+    }
+}
+
+validateNode(json, schema, '$')
+
+assert errors.isEmpty() : "Response body does not match the expected JSON Schema: " + errors.join('; ')]]></scriptText></con:configuration></con:assertion><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters><con:entry key="status" value="available"/></con:parameters><con:parameterOrder><con:entry>status</con:entry></con:parameterOrder></con:restRequest></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="6ce0deac-d48b-4953-9764-399991eeb057" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="GET_CaseErrorStatusCode400" searchProperties="true"><con:settings/><con:testStep type="restrequest" name="Execution_TestStep" id="30ac4a58-7be0-4fc2-b916-526f3c2619c7"><con:settings/><con:config service="PetstoreSimplified" resourcePath="/v2/pet/findByStatus" methodName="findPetsByStatus" xsi:type="con:RestRequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:restRequest name="Execution_TestStep" id="ee83f9fa-2f08-4019-a820-b82c136a3946" mediaType="application/json"><con:settings/><con:endpoint>https://petstore.swagger.io</con:endpoint><con:originalUri>https://petstore.swagger.io/v2/pet/findByStatus</con:originalUri><con:assertion type="Valid HTTP Status Codes" id="9b163547-9d44-4ef6-8cb8-1cbeae5d0a44" name="Valid HTTP Status Codes"><con:configuration><codes>400</codes></con:configuration></con:assertion><con:assertion type="GroovyScriptAssertion" id="9029a23b-ac8d-4f33-b5a7-d9a80981fd6a" name="Script Assertion"><con:configuration><scriptText><![CDATA[def json = null
+try {
+    json = new groovy.json.JsonSlurper().parseText(messageExchange.responseContent)
+} catch (Exception e) {
+    assert false : "A JSON response was expected"
+}
+
+def schema = new groovy.json.JsonSlurper().parseText(context.expand('${#Project#schema3}'))
+
+def errors = []
+def validateNode
+validateNode = { instance, sch, path ->
+    if (sch == null) { return }
+    if (instance == null) {
+        if (!(sch.nullable == true)) { errors << (path + ": expected non-null value") }
+        return
+    }
+    if (sch.enum != null) {
+        if (!sch.enum.contains(instance)) {
+            errors << (path + ": value is not one of the allowed enum values")
+        }
+        return
+    }
+    if (sch.anyOf != null) {
+        def matched = false
+        for (candidate in sch.anyOf) {
+            def before = errors.size()
+            validateNode(instance, candidate, path)
+            if (errors.size() == before) { matched = true; break }
+            while (errors.size() > before) { errors.remove(errors.size() - 1) }
+        }
+        if (!matched) { errors << (path + ": does not match any of the expected schemas") }
+        return
+    }
+    switch (sch.type) {
+        case 'object':
+            if (!(instance instanceof Map)) { errors << (path + ": expected object"); return }
+            (sch.required ?: []).each { req -> if (!instance.containsKey(req)) { errors << (path + "." + req + ": required property missing") } }
+            (sch.properties ?: [:]).each { propName, propSchema -> if (instance.containsKey(propName)) { validateNode(instance[propName], propSchema, path + "." + propName) } }
+            if (sch.additionalProperties == false) {
+                def allowedProps = (sch.properties ?: [:]).keySet()
+                instance.keySet().each { key -> if (!allowedProps.contains(key)) { errors << (path + "." + key + ": additional property not allowed") } }
+            }
+            break
+        case 'array':
+            if (!(instance instanceof List)) { errors << (path + ": expected array"); return }
+            if (sch.minItems != null && instance.size() < sch.minItems) { errors << (path + ": fewer than minItems " + sch.minItems) }
+            if (sch.maxItems != null && instance.size() > sch.maxItems) { errors << (path + ": more than maxItems " + sch.maxItems) }
+            if (sch.uniqueItems == true && instance.size() != (instance as Set).size()) { errors << (path + ": items are not unique") }
+            instance.eachWithIndex { item, idx -> validateNode(item, sch.items, path + "[" + idx + "]") }
+            break
+        case 'string':
+            if (!(instance instanceof String)) { errors << (path + ": expected string"); return }
+            if (sch.pattern && !(instance =~ sch.pattern).find()) { errors << (path + ": does not match pattern '" + sch.pattern + "'") }
+            if (sch.format == 'email' && !(instance ==~ /^[^@\s]+@[^@\s]+\.[^@\s]+$/)) { errors << (path + ": does not match format 'email'") }
+            if (sch.format == 'uuid' && !(instance ==~ /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/)) { errors << (path + ": does not match format 'uuid'") }
+            if (sch.format == 'date' && !(instance ==~ /^\d{4}-\d{2}-\d{2}$/)) { errors << (path + ": does not match format 'date'") }
+            if (sch.format == 'date-time' && !(instance ==~ /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?$/)) { errors << (path + ": does not match format 'date-time'") }
+            if (sch.minLength != null && instance.length() < sch.minLength) { errors << (path + ": shorter than minLength " + sch.minLength) }
+            if (sch.maxLength != null && instance.length() > sch.maxLength) { errors << (path + ": longer than maxLength " + sch.maxLength) }
+            break
+        case 'integer':
+            if (!(instance instanceof Integer || instance instanceof Long || instance instanceof BigInteger || (instance instanceof BigDecimal && instance.scale() <= 0))) { errors << (path + ": expected integer"); return }
+            if (sch.minimum != null && new BigDecimal(instance.toString()).compareTo(new BigDecimal(sch.minimum.toString())) < 0) { errors << (path + ": below minimum " + sch.minimum) }
+            if (sch.maximum != null && new BigDecimal(instance.toString()).compareTo(new BigDecimal(sch.maximum.toString())) > 0) { errors << (path + ": above maximum " + sch.maximum) }
+            break
+        case 'number':
+            if (!(instance instanceof Number)) { errors << (path + ": expected number"); return }
+            if (sch.minimum != null && new BigDecimal(instance.toString()).compareTo(new BigDecimal(sch.minimum.toString())) < 0) { errors << (path + ": below minimum " + sch.minimum) }
+            if (sch.maximum != null && new BigDecimal(instance.toString()).compareTo(new BigDecimal(sch.maximum.toString())) > 0) { errors << (path + ": above maximum " + sch.maximum) }
+            break
+        case 'boolean':
+            if (!(instance instanceof Boolean)) { errors << (path + ": expected boolean") }
+            break
+        default:
+            break
+    }
+}
+
+validateNode(json, schema, '$')
+
+assert errors.isEmpty() : "Response body does not match the expected JSON Schema: " + errors.join('; ')]]></scriptText></con:configuration></con:assertion><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters><con:entry key="status" value="available"/></con:parameters><con:parameterOrder><con:entry>status</con:entry></con:parameterOrder></con:restRequest></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="938205f7-2b31-4998-a61d-2fe29bd95380" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="GET_CaseErrorRequiredStatus" searchProperties="true"><con:settings/><con:testStep type="restrequest" name="Execution_TestStep" id="8c6af1e0-d0cf-499b-a88e-33920ce00053"><con:settings/><con:config service="PetstoreSimplified" resourcePath="/v2/pet/findByStatus" methodName="findPetsByStatus" xsi:type="con:RestRequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:restRequest name="Execution_TestStep" id="ee83f9fa-2f08-4019-a820-b82c136a3946" mediaType="application/json"><con:settings/><con:endpoint>https://petstore.swagger.io</con:endpoint><con:originalUri>https://petstore.swagger.io/v2/pet/findByStatus</con:originalUri><con:assertion type="Valid HTTP Status Codes" id="a532682c-1be4-488a-ad25-1cbd9a0f4377" name="Valid HTTP Status Codes"><con:configuration><codes>400</codes></con:configuration></con:assertion><con:assertion type="GroovyScriptAssertion" id="7d5dcfc6-c289-4151-ab07-9ec8ec6ec8b6" name="Script Assertion"><con:configuration><scriptText><![CDATA[def json = null
+try {
+    json = new groovy.json.JsonSlurper().parseText(messageExchange.responseContent)
+} catch (Exception e) {
+    assert false : "A JSON response was expected"
+}
+
+def schema = new groovy.json.JsonSlurper().parseText(context.expand('${#Project#schema4}'))
+
+def errors = []
+def validateNode
+validateNode = { instance, sch, path ->
+    if (sch == null) { return }
+    if (instance == null) {
+        if (!(sch.nullable == true)) { errors << (path + ": expected non-null value") }
+        return
+    }
+    if (sch.enum != null) {
+        if (!sch.enum.contains(instance)) {
+            errors << (path + ": value is not one of the allowed enum values")
+        }
+        return
+    }
+    if (sch.anyOf != null) {
+        def matched = false
+        for (candidate in sch.anyOf) {
+            def before = errors.size()
+            validateNode(instance, candidate, path)
+            if (errors.size() == before) { matched = true; break }
+            while (errors.size() > before) { errors.remove(errors.size() - 1) }
+        }
+        if (!matched) { errors << (path + ": does not match any of the expected schemas") }
+        return
+    }
+    switch (sch.type) {
+        case 'object':
+            if (!(instance instanceof Map)) { errors << (path + ": expected object"); return }
+            (sch.required ?: []).each { req -> if (!instance.containsKey(req)) { errors << (path + "." + req + ": required property missing") } }
+            (sch.properties ?: [:]).each { propName, propSchema -> if (instance.containsKey(propName)) { validateNode(instance[propName], propSchema, path + "." + propName) } }
+            if (sch.additionalProperties == false) {
+                def allowedProps = (sch.properties ?: [:]).keySet()
+                instance.keySet().each { key -> if (!allowedProps.contains(key)) { errors << (path + "." + key + ": additional property not allowed") } }
+            }
+            break
+        case 'array':
+            if (!(instance instanceof List)) { errors << (path + ": expected array"); return }
+            if (sch.minItems != null && instance.size() < sch.minItems) { errors << (path + ": fewer than minItems " + sch.minItems) }
+            if (sch.maxItems != null && instance.size() > sch.maxItems) { errors << (path + ": more than maxItems " + sch.maxItems) }
+            if (sch.uniqueItems == true && instance.size() != (instance as Set).size()) { errors << (path + ": items are not unique") }
+            instance.eachWithIndex { item, idx -> validateNode(item, sch.items, path + "[" + idx + "]") }
+            break
+        case 'string':
+            if (!(instance instanceof String)) { errors << (path + ": expected string"); return }
+            if (sch.pattern && !(instance =~ sch.pattern).find()) { errors << (path + ": does not match pattern '" + sch.pattern + "'") }
+            if (sch.format == 'email' && !(instance ==~ /^[^@\s]+@[^@\s]+\.[^@\s]+$/)) { errors << (path + ": does not match format 'email'") }
+            if (sch.format == 'uuid' && !(instance ==~ /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/)) { errors << (path + ": does not match format 'uuid'") }
+            if (sch.format == 'date' && !(instance ==~ /^\d{4}-\d{2}-\d{2}$/)) { errors << (path + ": does not match format 'date'") }
+            if (sch.format == 'date-time' && !(instance ==~ /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?$/)) { errors << (path + ": does not match format 'date-time'") }
+            if (sch.minLength != null && instance.length() < sch.minLength) { errors << (path + ": shorter than minLength " + sch.minLength) }
+            if (sch.maxLength != null && instance.length() > sch.maxLength) { errors << (path + ": longer than maxLength " + sch.maxLength) }
+            break
+        case 'integer':
+            if (!(instance instanceof Integer || instance instanceof Long || instance instanceof BigInteger || (instance instanceof BigDecimal && instance.scale() <= 0))) { errors << (path + ": expected integer"); return }
+            if (sch.minimum != null && new BigDecimal(instance.toString()).compareTo(new BigDecimal(sch.minimum.toString())) < 0) { errors << (path + ": below minimum " + sch.minimum) }
+            if (sch.maximum != null && new BigDecimal(instance.toString()).compareTo(new BigDecimal(sch.maximum.toString())) > 0) { errors << (path + ": above maximum " + sch.maximum) }
+            break
+        case 'number':
+            if (!(instance instanceof Number)) { errors << (path + ": expected number"); return }
+            if (sch.minimum != null && new BigDecimal(instance.toString()).compareTo(new BigDecimal(sch.minimum.toString())) < 0) { errors << (path + ": below minimum " + sch.minimum) }
+            if (sch.maximum != null && new BigDecimal(instance.toString()).compareTo(new BigDecimal(sch.maximum.toString())) > 0) { errors << (path + ": above maximum " + sch.maximum) }
+            break
+        case 'boolean':
+            if (!(instance instanceof Boolean)) { errors << (path + ": expected boolean") }
+            break
+        default:
+            break
+    }
+}
+
+validateNode(json, schema, '$')
+
+assert errors.isEmpty() : "Response body does not match the expected JSON Schema: " + errors.join('; ')]]></scriptText></con:configuration></con:assertion><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters><con:entry key="status" value=""/></con:parameters><con:parameterOrder><con:entry>status</con:entry></con:parameterOrder></con:restRequest></con:config></con:testStep><con:properties/></con:testCase><con:properties/></con:testSuite><con:properties><con:property><con:name>schema1</con:name><con:value>{
+  "type" : "array",
+  "items" : {
+    "type" : "object",
+    "properties" : {
+      "id" : {
+        "type" : "integer",
+        "format" : "int64"
+      },
+      "category" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        }
+      },
+      "name" : {
+        "type" : "string"
+      },
+      "photoUrls" : {
+        "type" : "array",
+        "items" : {
+          "type" : "string"
+        }
+      },
+      "tags" : {
+        "type" : "array",
+        "items" : {
+          "type" : "object",
+          "properties" : {
+            "id" : {
+              "type" : "integer",
+              "format" : "int64"
+            },
+            "name" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "status" : {
+        "enum" : [ "available", "pending", "sold" ],
+        "type" : "string"
+      }
+    },
+    "required" : [ "name", "photoUrls" ]
+  }
+}</con:value></con:property><con:property><con:name>schema2</con:name><con:value>{
+  "type" : "array",
+  "items" : {
+    "type" : "object",
+    "properties" : {
+      "id" : {
+        "type" : "integer",
+        "format" : "int64"
+      },
+      "category" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        }
+      },
+      "name" : {
+        "type" : "string"
+      },
+      "photoUrls" : {
+        "type" : "array",
+        "items" : {
+          "type" : "string"
+        }
+      },
+      "tags" : {
+        "type" : "array",
+        "items" : {
+          "type" : "object",
+          "properties" : {
+            "id" : {
+              "type" : "integer",
+              "format" : "int64"
+            },
+            "name" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "status" : {
+        "enum" : [ "available", "pending", "sold" ],
+        "type" : "string"
+      }
+    },
+    "required" : [ "name", "photoUrls" ]
+  }
+}</con:value></con:property><con:property><con:name>schema3</con:name><con:value>{
+  "type" : "object",
+  "properties" : {
+    "code" : {
+      "type" : "integer",
+      "format" : "int32"
+    },
+    "message" : {
+      "type" : "string"
+    }
+  },
+  "required" : [ "code", "message" ]
+}</con:value></con:property><con:property><con:name>schema4</con:name><con:value>{
+  "type" : "object",
+  "properties" : {
+    "code" : {
+      "type" : "integer",
+      "format" : "int32"
+    },
+    "message" : {
+      "type" : "string"
+    }
+  },
+  "required" : [ "code", "message" ]
+}</con:value></con:property></con:properties><con:wssContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/></con:soapui-project>

@@ -1,0 +1,76 @@
+openapi: 3.0.3
+info:
+  title: httpbin demo
+  version: 1.0.0
+  description: >
+    Subconjunto de https://httpbin.org con 2 paths para probar openapi2postman.
+    GET /bearer valida autenticación Bearer; POST /post devuelve el body recibido.
+servers:
+  - url: https://httpbin.org
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    Mascota:
+      type: object
+      required: [name, age]
+      properties:
+        name:
+          type: string
+          maxLength: 20
+          example: Firulais
+        age:
+          type: integer
+          minimum: 0
+          maximum: 30
+          example: 3
+        vaccinated:
+          type: boolean
+          example: true
+paths:
+  /bearer:
+    get:
+      summary: Comprobar token Bearer
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Token válido
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [authenticated, token]
+                properties:
+                  authenticated:
+                    type: boolean
+                  token:
+                    type: string
+        "401":
+          description: Sin token o token inválido
+  /post:
+    post:
+      summary: Enviar mascota
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Mascota"
+      responses:
+        "200":
+          description: httpbin devuelve lo recibido
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [json, url]
+                properties:
+                  json:
+                    $ref: "#/components/schemas/Mascota"
+                  url:
+                    type: string
+        "400":
+          description: Body inválido

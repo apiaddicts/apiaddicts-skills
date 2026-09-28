@@ -1,0 +1,42 @@
+Status: FAILED
+Time Taken: 109
+Size: 169
+Timestamp: Wed Aug 26 23:16:03 GMT 2026
+TestStep: Execution_TestStep
+
+----------------- Messages ------------------------------
+[Valid HTTP Status Codes] Response status code:200 is not in acceptable list of status codes
+[Script Assertion] Response body does not match the expected JSON Schema: $: expected object. Expression: errors.isEmpty()
+
+----------------- Properties ------------------------------
+HTTP Version: HTTP/1.1
+Endpoint: https://petstore.swagger.io
+Method: GET
+StatusCode: 200
+URL: https://petstore.swagger.io/v2/pet/findByStatus?status=
+
+---------------- Request ---------------------------
+Connection: [Keep-Alive]
+User-Agent: [Apache-HttpClient/4.5.5 (Java/17.0.12)]
+Host: [petstore.swagger.io]
+Accept-Encoding: [gzip,deflate]
+
+GET https://petstore.swagger.io/v2/pet/findByStatus?status= HTTP/1.1
+Accept-Encoding: gzip,deflate
+Host: petstore.swagger.io
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.5 (Java/17.0.12)
+
+
+---------------- Response --------------------------
+Transfer-Encoding: [chunked]
+Server: [Jetty(9.2.9.v20150224)]
+Access-Control-Allow-Origin: [*]
+Access-Control-Allow-Methods: [GET, POST, DELETE, PUT]
+Connection: [keep-alive]
+#status#: [HTTP/1.1 200 OK]
+Date: [Wed, 26 Aug 2026 23:16:04 GMT]
+Access-Control-Allow-Headers: [Content-Type, api_key, Authorization]
+Content-Type: [application/json]
+
+[{"id":9222968140498488742,"category":{"id":-66855083,"name":"????????????"},"photoUrls":[],"tags":[{"id":83715687,"name":"??????????"},{"id":0,"name":""}],"status":""}]

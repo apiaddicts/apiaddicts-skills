@@ -1,0 +1,19 @@
+{
+  "api_name": "httpbin",
+  "is_inline": true,
+  "schema_is_inline": true,
+  "schema_pretty_print": true,
+  "minimal_endpoints": false,
+  "generate_oneOf_anyOf": false,
+  "environments": [
+    {
+      "name": "DEMO",
+      "postman_collection_name": "%api_name%_DEMO",
+      "postman_environment_name": "%api_name%_DEMO_env",
+      "target_folder": "out",
+      "host_server_pattern": "%httpbin%",
+      "validate_schema": true,
+      "read_only": false
+    }
+  ]
+}

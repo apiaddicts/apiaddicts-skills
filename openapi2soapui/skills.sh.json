@@ -1,0 +1,14 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "openapi2soapui",
+      "description": "Skills para generar y ejecutar proyectos SoapUI a partir de OpenAPI usando openapi2soapui (apiaddicts/openapi2soapui).",
+      "skills": [
+        "generar-proyecto-soapui",
+        "ejecutar-proyecto-soapui"
+      ]
+    }
+  ]
+}
