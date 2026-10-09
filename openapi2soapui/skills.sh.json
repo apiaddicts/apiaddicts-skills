@@ -4,7 +4,7 @@
   "groupings": [
     {
       "title": "openapi2soapui",
-      "description": "Skills para generar y ejecutar proyectos SoapUI a partir de OpenAPI usando openapi2soapui (apiaddicts/openapi2soapui).",
+      "description": "Skills to generate and run SoapUI projects from OpenAPI using openapi2soapui (apiaddicts/openapi2soapui).",
       "skills": [
         "generar-proyecto-soapui",
         "ejecutar-proyecto-soapui"

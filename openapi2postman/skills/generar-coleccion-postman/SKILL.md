@@ -1,53 +1,53 @@
 ---
 name: generar-coleccion-postman
-description: Enseña cómo usar openapi2postman (comando `o2p`) para generar contract tests en formato Postman (colección + entorno) a partir de un spec OpenAPI, incluyendo el archivo de configuración completo (entornos, host, read_only, autenticación, scopes, validación de esquema, ejemplos), qué casos de prueba genera exactamente (2xx, 400, 401, 403, 404) y las limitaciones verificadas del spec que la herramienta no soporta. Úsala cuando el usuario pida generar la colección Postman, crear contract tests desde un OpenAPI/Swagger, armar o revisar el `o2p_config_file.json`, entender por qué faltan tests o por qué falla la generación, o generar colecciones para varios entornos (DEV/PRE/PROD), incluso si no menciona el nombre exacto de la herramienta. NO cubre instalar la herramienta (usa `instalar-openapi2postman`) ni ejecutar la colección con Postman/Newman.
+description: Explains how to use openapi2postman (command `o2p`) to generate contract tests in Postman format (collection + environment) from an OpenAPI spec, including the full configuration file (environments, host, read_only, authentication, scopes, schema validation, examples), exactly which test cases it generates (2xx, 400, 401, 403, 404) and the verified spec limitations the tool does not support. Use it when the user asks to generate the Postman collection, create contract tests from an OpenAPI/Swagger spec, build or review the `o2p_config_file.json`, understand why tests are missing or why generation fails, or generate collections for several environments (DEV/PRE/PROD), even if they don't mention the exact tool name. Does NOT cover installing the tool (use `instalar-openapi2postman`) or running the collection with Postman/Newman.
 ---
 
-# Generar contract tests Postman con openapi2postman
+# Generate Postman contract tests with openapi2postman
 
-Esta skill cubre cómo invocar `o2p` sobre un spec OpenAPI y cómo configurarlo. Todo lo que dice abajo fue verificado contra openapi2postman **2.4.3** (código en `master` = tag `2.4.3`), ejecutando la herramienta y corriendo las colecciones generadas con Newman. La documentación oficial (README y PDFs de `docs/`, de 2020) está desactualizada en varios puntos. Si hay conflicto, manda lo que dice esta skill.
+This skill covers how to invoke `o2p` on an OpenAPI spec and how to configure it. Everything below was verified against openapi2postman **2.4.3** (code in `master` = tag `2.4.3`), by running the tool and running the generated collections with Newman. The official documentation (README and PDFs in `docs/`, from 2020) is outdated on several points. In case of conflict, what this skill says takes precedence.
 
-Si la herramienta no está instalada, usá primero la skill `instalar-openapi2postman`. Según cómo se instaló, el comando es `o2p`, `node node_modules/openapi2postman/index.js` o `node index.js`. En los ejemplos se usa `o2p`.
+If the tool is not installed, use the `instalar-openapi2postman` skill first. Depending on how it was installed, the command is `o2p`, `node node_modules/openapi2postman/index.js` or `node index.js`. The examples use `o2p`.
 
-## Paso 0: reunir datos, nunca asumirlos
+## Step 0: gather the data, never assume it
 
-Antes de generar, confirmá con el usuario:
+Before generating, confirm with the user:
 
-1. **Ruta del spec.** Tiene que ser `.yaml` o `.yml` (ver el pre-chequeo).
-2. **Entornos** a generar (ej. DEV, PRE, PROD) y, para cada uno, de dónde sale el host: de un `servers[].url` del spec (por patrón) o de un host explícito.
-3. **Si algún entorno es productivo.** En ese caso hay que usar `read_only: true`, para que no se generen POST/PUT/PATCH/DELETE contra datos reales.
-4. **Autenticación**: qué `securitySchemes` tiene el spec y si el usuario tiene una colección Postman propia para obtener tokens.
-5. **Carpeta de salida.**
+1. **Spec path.** It must be `.yaml` or `.yml` (see the pre-check).
+2. **Environments** to generate (e.g. DEV, PRE, PROD) and, for each one, where the host comes from: a `servers[].url` in the spec (by pattern) or an explicit host.
+3. **Whether any environment is production.** In that case `read_only: true` must be used, so that no POST/PUT/PATCH/DELETE are generated against real data.
+4. **Authentication**: which `securitySchemes` the spec has and whether the user has their own Postman collection to obtain tokens.
+5. **Output folder.**
 
-No inventes hosts, tokens ni credenciales.
+Don't make up hosts, tokens or credentials.
 
-## Paso 1: pre-chequeo del spec (bloqueantes)
+## Step 1: spec pre-check (blockers)
 
-Revisá el spec **antes** de ejecutar. Estos casos hacen fallar la generación o producen tests rotos:
+Review the spec **before** running. These cases make generation fail or produce broken tests:
 
-| Problema en el spec | Qué pasa (verificado) | Workaround |
+| Problem in the spec | What happens (verified) | Workaround |
 |---|---|---|
-| Spec en `.json` | Error `The yaml format is not correct` | Convertirlo a YAML (una copia) |
-| `openapi: 3.0.4` u otra versión fuera de la lista | Error `Specification is not supported` | Versiones aceptadas: `2.0`, `3.0`–`3.0.3`, `3.1`–`3.1.2`, `3.2`/`3.2.0`. En una copia, bajar a `3.0.3` |
-| Sin `servers` (OAS3) | Error `servers is required` | Agregar `servers` con URL absoluta |
-| `servers[0].url` relativa (`/v1`) | Error `servers.url should be http or https` | Usar una URL absoluta `http(s)://...`. Solo se valida `servers[0]` |
-| Swagger 2.0 sin `host` o sin `basePath` | Error `host is required` / `basePath is required` | Completarlos |
-| `$ref` a archivo local (`./common.yaml#/X`) | Error `$ref not found` | Solo se resuelven refs internos (`#/...`) y URLs `http(s)://`. Hacer bundle del spec (ej. `redocly bundle`) |
-| Objeto sin `properties` en un body de request (`type: object` a secas) | Error `There is an object without properties` | Definir `properties`, o `additionalProperties: true` |
-| Parámetros declarados a nivel de path (`paths./x/{id}.parameters`) | **Se ignoran** sin avisar: la URL queda con `{id}` literal y no se genera el caso 404 | Moverlos a cada operación (en una copia) |
-| Propiedad de body sin `type` (solo `oneOf`/`allOf`, etc.) | Se omite del body generado | Declarar `type` |
+| Spec in `.json` | Error `The yaml format is not correct` | Convert it to YAML (a copy) |
+| `openapi: 3.0.4` or another version outside the list | Error `Specification is not supported` | Accepted versions: `2.0`, `3.0`–`3.0.3`, `3.1`–`3.1.2`, `3.2`/`3.2.0`. In a copy, downgrade to `3.0.3` |
+| No `servers` (OAS3) | Error `servers is required` | Add `servers` with an absolute URL |
+| Relative `servers[0].url` (`/v1`) | Error `servers.url should be http or https` | Use an absolute `http(s)://...` URL. Only `servers[0]` is validated |
+| Swagger 2.0 without `host` or without `basePath` | Error `host is required` / `basePath is required` | Fill them in |
+| `$ref` to a local file (`./common.yaml#/X`) | Error `$ref not found` | Only internal refs (`#/...`) and `http(s)://` URLs are resolved. Bundle the spec (e.g. `redocly bundle`) |
+| Object without `properties` in a request body (plain `type: object`) | Error `There is an object without properties` | Define `properties`, or `additionalProperties: true` |
+| Parameters declared at path level (`paths./x/{id}.parameters`) | **Silently ignored**: the URL keeps a literal `{id}` and the 404 case is not generated | Move them to each operation (in a copy) |
+| Body property without `type` (only `oneOf`/`allOf`, etc.) | Omitted from the generated body | Declare `type` |
 
-Si aplicás un workaround, hacelo **sobre una copia** del spec y avisale al usuario. Nunca modifiques el spec original sin permiso.
+If you apply a workaround, do it **on a copy** of the spec and tell the user. Never modify the original spec without permission.
 
-## Paso 2: armar el archivo de configuración
+## Step 2: build the configuration file
 
-Usá siempre `-c`. Sin configuración, la herramienta usa un default con `microcks_headers: true` (el README dice `false`) y `host_server_pattern: "%dev%"`. Si ningún server contiene `dev`, la variable `host` queda vacía y todas las requests se rompen.
+Always use `-c`. Without configuration, the tool uses a default with `microcks_headers: true` (the README says `false`) and `host_server_pattern: "%dev%"`. If no server contains `dev`, the `host` variable is left empty and every request breaks.
 
-### Plantilla recomendada
+### Recommended template
 
 ```json
 {
-  "api_name": "mi_api",
+  "api_name": "my_api",
   "is_inline": true,
   "schema_is_inline": true,
   "schema_pretty_print": true,
@@ -68,7 +68,7 @@ Usá siempre `-c`. Sin configuración, la herramienta usa un default con `microc
       "postman_collection_name": "%api_name%_PROD",
       "postman_environment_name": "%api_name%_PROD_env",
       "target_folder": "out",
-      "host": "https://api.midominio.com",
+      "host": "https://api.mydomain.com",
       "port": "",
       "validate_schema": true,
       "read_only": true
@@ -77,104 +77,104 @@ Usá siempre `-c`. Sin configuración, la herramienta usa un default con `microc
 }
 ```
 
-### Campos globales
+### Global fields
 
-| Campo | Default | Efecto verificado |
+| Field | Default | Verified effect |
 |---|---|---|
-| `api_name` | nombre del spec (solo sin `-c`) | Reemplaza `%api_name%` en los nombres. **Con `-c` y sin este campo, el `%api_name%` queda literal en el nombre del archivo** |
-| `is_inline` | `false` | `false`: todos los valores van como variables de entorno (`{{TC.001.001.id}}`) y **números y booleanos del body se envían como string** (`"id": "1"`, `"vaccinated": "true"`). Un servidor estricto responde 400 en el caso feliz. `true`: los valores se escriben en la request con su tipo real (`"id": 5`). **Recomendado `true`** salvo que el usuario quiera editar los valores desde el entorno |
-| `schema_is_inline` | sin `-c`: `false`. Con `-c` y sin el campo: se comporta como `true` | Solo `false` explícito guarda el JSON Schema de cada respuesta en una variable de entorno `TC.x.y.schemaTest`. Cualquier otro valor lo escribe dentro del script de test |
-| `schema_pretty_print` | sin `-c`: `true`. Con `-c` y sin el campo: compacto | Solo `true` explícito indenta el schema |
-| `minimal_endpoints` | `false` | `true`: un solo caso 400 por body (en vez de uno por campo requerido y otro por campo con tipo erróneo), y no duplica casos por query param opcional |
-| `generate_oneOf_anyOf` | `false` | `true`: si el body de request es `oneOf`/`anyOf`, genera un juego de casos (2xx y 400) por cada opción. Con `false` usa solo la primera |
-| `examples` | ver abajo | Valores de relleno cuando el spec no trae `example` |
+| `api_name` | spec name (only without `-c`) | Replaces `%api_name%` in names. **With `-c` and without this field, `%api_name%` stays literal in the file name** |
+| `is_inline` | `false` | `false`: all values go as environment variables (`{{TC.001.001.id}}`) and **numbers and booleans in the body are sent as strings** (`"id": "1"`, `"vaccinated": "true"`). A strict server responds 400 in the happy path. `true`: values are written into the request with their real type (`"id": 5`). **`true` recommended** unless the user wants to edit the values from the environment |
+| `schema_is_inline` | without `-c`: `false`. With `-c` and without the field: behaves as `true` | Only an explicit `false` stores each response's JSON Schema in an environment variable `TC.x.y.schemaTest`. Any other value writes it inside the test script |
+| `schema_pretty_print` | without `-c`: `true`. With `-c` and without the field: compact | Only an explicit `true` indents the schema |
+| `minimal_endpoints` | `false` | `true`: a single 400 case per body (instead of one per required field and another per field with a wrong type), and does not duplicate cases per optional query param |
+| `generate_oneOf_anyOf` | `false` | `true`: if the request body is `oneOf`/`anyOf`, generates a set of cases (2xx and 400) for each option. With `false` it uses only the first one |
+| `examples` | see below | Filler values when the spec has no `example` |
 
-`examples` tiene dos bloques, `successful` y `wrong`, con claves `string`, `number`, `boolean`, `date`, `date_time`, `object`, `array`. Sin ellos, los valores de relleno son `anystring`, `1`, `true`, `anydate` para los casos OK y `badstring`, `badnumber`, `badboolean`, `baddate` para los erróneos. Ojo: **`anydate` no es una fecha válida**, así que un caso feliz con campos `date` va a fallar si no hay `example` en el spec o `examples.successful.date` en la config. Prioridad de valores: `example` del spec (o `default` en query params) > `examples` de la config > relleno.
+`examples` has two blocks, `successful` and `wrong`, with keys `string`, `number`, `boolean`, `date`, `date_time`, `object`, `array`. Without them, the filler values are `anystring`, `1`, `true`, `anydate` for the OK cases and `badstring`, `badnumber`, `badboolean`, `baddate` for the wrong ones. Careful: **`anydate` is not a valid date**, so a happy-path case with `date` fields will fail if there is no `example` in the spec or `examples.successful.date` in the config. Value priority: spec `example` (or `default` in query params) > config `examples` > filler.
 
-Para los casos erróneos, la herramienta usa `maxLength + 1` en strings, `maximum + 1` o `minimum - 1` en números y mes `50` en fechas con example. Si no hay restricciones, usa el valor `wrong`.
+For the wrong cases, the tool uses `maxLength + 1` for strings, `maximum + 1` or `minimum - 1` for numbers and month `50` for dates with an example. If there are no constraints, it uses the `wrong` value.
 
-### Campos por entorno (`environments[]`)
+### Per-environment fields (`environments[]`)
 
-| Campo | Obligatorio | Efecto verificado |
+| Field | Required | Verified effect |
 |---|---|---|
-| `name` | sí | Informativo |
-| `postman_collection_name` | sí | Nombre del archivo y de la colección. Si falta, el archivo se llama `undefined.postman_collection.json`. (El PDF oficial lo llama `postman_connection_name` por error) |
-| `postman_environment_name` | sí | Ídem, para el entorno |
-| `target_folder` | **sí** | Carpeta de salida, relativa a la carpeta actual. **Si falta, falla** con `Error writing the output: undefined` (el PDF dice que usa la carpeta actual; no es así). Solo crea el último nivel: `a/b/c` falla si `a/b` no existe |
-| `host_server_pattern` | no | Busca el primer `servers[].url` que contenga el texto (sin los `%`) y usa su host y basePath. Ej. `"%pro%"` |
-| `host` | no | Host explícito con protocolo (`https://api.x.com`). Solo se usa si no hay `host_server_pattern` o si el patrón no encontró server. Si no hay ninguno de los dos, `host` queda vacío |
-| `port` | no | Se normaliza a `:8080`. Vacío si no se indica |
-| `read_only` | no (`false`) | `true`: deja solo GET y OPTIONS (también excluye HEAD) |
-| `validate_schema` | no (`false`) | **Con `false`, el test de schema AJV queda comentado** y la colección solo valida status codes. Para contract testing real, usar `true`. Acepta boolean o `"true"`/`"false"` |
-| `custom_authorizations_file` | no | Ruta (relativa a la carpeta actual) a una colección Postman con las requests que obtienen tokens. Se inserta como carpeta `000.authorizations` al inicio |
-| `has_scopes` | no | `true`: por cada caso 2xx/3xx con auth, agrega variantes con otros tokens |
-| `number_of_scopes` | no | Con `has_scopes`, agrega variantes con tokens `<scheme>2`…`<scheme>N` |
-| `application_token` | no | Con `has_scopes`, agrega una variante con `{{application_token}}` |
-| `microcks_headers` | no | Agrega el header `X-Microcks-Response-Name` a todas las requests: el nombre del primer `examples` de la respuesta, o `default` |
-| `basepath` | — | **Ya no existe** (aparece en el PDF). El basePath sale siempre del spec |
+| `name` | yes | Informational |
+| `postman_collection_name` | yes | Name of the file and of the collection. If missing, the file is named `undefined.postman_collection.json`. (The official PDF mistakenly calls it `postman_connection_name`) |
+| `postman_environment_name` | yes | Same, for the environment |
+| `target_folder` | **yes** | Output folder, relative to the current folder. **If missing, it fails** with `Error writing the output: undefined` (the PDF says it uses the current folder; it does not). Only the last level is created: `a/b/c` fails if `a/b` does not exist |
+| `host_server_pattern` | no | Finds the first `servers[].url` that contains the text (without the `%`) and uses its host and basePath. E.g. `"%pro%"` |
+| `host` | no | Explicit host with protocol (`https://api.x.com`). Only used if there is no `host_server_pattern` or if the pattern found no server. If neither is present, `host` is left empty |
+| `port` | no | Normalized to `:8080`. Empty if not specified |
+| `read_only` | no (`false`) | `true`: keeps only GET and OPTIONS (also excludes HEAD) |
+| `validate_schema` | no (`false`) | **With `false`, the AJV schema test is commented out** and the collection only validates status codes. For real contract testing, use `true`. Accepts boolean or `"true"`/`"false"` |
+| `custom_authorizations_file` | no | Path (relative to the current folder) to a Postman collection with the requests that obtain tokens. It is inserted as a `000.authorizations` folder at the start |
+| `has_scopes` | no | `true`: for each 2xx/3xx case with auth, adds variants with other tokens |
+| `number_of_scopes` | no | With `has_scopes`, adds variants with tokens `<scheme>2`…`<scheme>N` |
+| `application_token` | no | With `has_scopes`, adds a variant with `{{application_token}}` |
+| `microcks_headers` | no | Adds the `X-Microcks-Response-Name` header to all requests: the name of the response's first `examples` entry, or `default` |
+| `basepath` | — | **No longer exists** (it appears in the PDF). The basePath always comes from the spec |
 
-## Paso 3: ejecutar
+## Step 3: run
 
-Ejecutá desde la carpeta que contiene la config (ver restricción de `-c`):
+Run from the folder that contains the config (see the `-c` constraint):
 
 ```bash
-o2p -c o2p_config.json -f ruta/al/spec.yaml
+o2p -c o2p_config.json -f path/to/spec.yaml
 ```
 
-Salida esperada por entorno:
+Expected output per environment:
 ```
-Collection out/mi_api_DEV.postman_collection.json was succesfully created
-Environment out/mi_api_DEV_env.postman_environment.json was succesfully created
+Collection out/my_api_DEV.postman_collection.json was succesfully created
+Environment out/my_api_DEV_env.postman_environment.json was succesfully created
 ```
 
-Los warnings amarillos `... without schema validation test because it has a different response than 'application/json'` son normales: aparecen por cada respuesta sin schema JSON (incluso para status que después no se generan).
+The yellow warnings `... without schema validation test because it has a different response than 'application/json'` are normal: they appear for each response without a JSON schema (even for statuses that are not generated later).
 
-Restricciones de rutas:
-- `-c` tiene que estar dentro de la carpeta actual. Si no, sale el error engañoso `configuration file path does not exist or is not correct` (también sale si el JSON es inválido). Para permitir otra carpeta existe `O2P_ALLOWED_DIR`, pero con esa variable las rutas relativas de `-c` se resuelven desde ella, así que conviene usar una ruta absoluta.
-- `-f` no tiene esa restricción.
+Path constraints:
+- `-c` must be inside the current folder. Otherwise you get the misleading error `configuration file path does not exist or is not correct` (it also appears if the JSON is invalid). `O2P_ALLOWED_DIR` exists to allow another folder, but with that variable relative `-c` paths are resolved from it, so using an absolute path is best.
+- `-f` does not have that constraint.
 
-Si hay error, el proceso termina con código 1 y un mensaje en rojo.
+If there is an error, the process exits with code 1 and a red message.
 
-## Qué casos genera (verificado)
+## Which cases it generates (verified)
 
-Solo se generan tests para los **status declarados en `responses`** de cada operación:
+Tests are only generated for the **statuses declared in `responses`** of each operation:
 
-| Status | Se genera cuando | Qué prueba |
+| Status | Generated when | What it tests |
 |---|---|---|
-| **2xx** | Siempre que esté declarado | Request válida. Si hay query params opcionales, además un caso por cada uno (`queryString <param>`), salvo con `minimal_endpoints` |
-| **400** | Hay `400` declarado | Un caso por cada query param requerido omitido (`without.<param>`), uno por cada query param opcional con valor erróneo, y por el body: un caso por cada propiedad requerida omitida (`without.<campo>`) y uno por cada propiedad con valor inválido (`with.<campo>.wrong`) |
-| **401** | Hay `401` declarado **y** la operación tiene seguridad | Envía `Authorization: {{not_authorized_token}}` |
-| **403** | Hay `403` declarado **y** la operación tiene seguridad | Envía `Authorization: {{forbidden_token}}` |
-| **404** | Hay `404` declarado **y** la operación tiene path param | Usa `{{<param>_not_found}}` en la URL |
-| Otros (3xx, 409, 422, 5xx, `default`, 1xx) | **Nunca** | — |
+| **2xx** | Whenever declared | Valid request. If there are optional query params, also one case per param (`queryString <param>`), except with `minimal_endpoints` |
+| **400** | `400` is declared | One case per omitted required query param (`without.<param>`), one per optional query param with a wrong value, and for the body: one case per omitted required property (`without.<field>`) and one per property with an invalid value (`with.<field>.wrong`) |
+| **401** | `401` is declared **and** the operation has security | Sends `Authorization: {{not_authorized_token}}` |
+| **403** | `403` is declared **and** the operation has security | Sends `Authorization: {{forbidden_token}}` |
+| **404** | `404` is declared **and** the operation has a path param | Uses `{{<param>_not_found}}` in the URL |
+| Others (3xx, 409, 422, 5xx, `default`, 1xx) | **Never** | — |
 
-Cada test verifica el status code y, con `validate_schema: true` y una respuesta `application/json` (o tipos streaming como `application/x-ndjson`), el schema con AJV. Si la URL lleva `$select` o `$exclude`, la validación de schema se desactiva.
+Each test checks the status code and, with `validate_schema: true` and an `application/json` response (or streaming types like `application/x-ndjson`), the schema with AJV. If the URL contains `$select` or `$exclude`, schema validation is disabled.
 
-Estructura de la colección: carpeta por primer segmento del path → subcarpeta por operación (usa `summary` si existe, si no `MÉTODO-path`), numeradas `001.001.`. Los tests se llaman `TC.001.001.200 Successfull` y, si comparten status, llevan letras (`400a`, `400b`...). Orden: POST, PUT, PATCH, GET, DELETE.
+Collection structure: a folder per first path segment → a subfolder per operation (uses `summary` if present, otherwise `METHOD-path`), numbered `001.001.`. Tests are named `TC.001.001.200 Successfull` and, if they share a status, get letters (`400a`, `400b`...). Order: POST, PUT, PATCH, GET, DELETE.
 
-Bodies de request: prioriza `application/json`. Si no hay, usa `x-www-form-urlencoded` (modo urlencoded) o `multipart/form-data` (modo formdata). **En multipart, todos los campos se marcan como `file` y vacíos**, incluso los string.
+Request bodies: `application/json` takes priority. If not present, it uses `x-www-form-urlencoded` (urlencoded mode) or `multipart/form-data` (formdata mode). **In multipart, all fields are marked as `file` and empty**, even strings.
 
-## Autenticación (verificado)
+## Authentication (verified)
 
-- La herramienta toma el **primer** scheme de `security` de la operación o, si no tiene, el global. Siempre lo envía como header `Authorization: {{<nombre_del_scheme>}}`, **sin importar el tipo**. Un `apiKey` con `in: header, name: X-API-Key` igual se envía como `Authorization`.
-- **`security: []` en una operación no la hace pública**: hereda la seguridad global.
-- Scheme `oauth2` con `tokenUrl` y sin `custom_authorizations_file`: se agrega una request `Get OAuth2 Token - <scheme>` que hace POST a `tokenUrl` con `grant_type=password` y usuario y contraseña `cambiame`, **sea cual sea el flow declarado**. Guarda `Bearer <access_token>` en la variable del scheme. Hay que ajustarla a mano.
-- Con `custom_authorizations_file`: esa colección reemplaza a la request autogenerada. Sus requests tienen que guardar el token en una variable de entorno con el **mismo nombre que el scheme** (ej. `pm.environment.set("oauth", "Bearer " + token)`).
-- Sin `components.securitySchemes` (OAS3) y sin archivo de auth: se eliminan los headers Authorization y los casos 401/403.
+- The tool takes the **first** scheme from the operation's `security` or, if it has none, the global one. It always sends it as an `Authorization: {{<scheme_name>}}` header, **regardless of the type**. An `apiKey` with `in: header, name: X-API-Key` is still sent as `Authorization`.
+- **`security: []` on an operation does not make it public**: it inherits the global security.
+- `oauth2` scheme with `tokenUrl` and without `custom_authorizations_file`: a `Get OAuth2 Token - <scheme>` request is added that POSTs to `tokenUrl` with `grant_type=password` and username and password `cambiame`, **whatever flow is declared**. It stores `Bearer <access_token>` in the scheme variable. It must be adjusted manually.
+- With `custom_authorizations_file`: that collection replaces the autogenerated request. Its requests must store the token in an environment variable with the **same name as the scheme** (e.g. `pm.environment.set("oauth", "Bearer " + token)`).
+- Without `components.securitySchemes` (OAS3) and without an auth file: the Authorization headers and the 401/403 cases are removed.
 
-## Después de generar: qué tiene que completar el usuario
+## After generating: what the user has to fill in
 
-En el entorno generado, avisale que revise:
-- Variables de token vacías: `<scheme>`, `not_authorized_token`, `forbidden_token` (y `<scheme>2..N` / `application_token` si usó scopes).
-- `host` vacío, si no hubo `host` ni patrón que coincida.
-- Valores de relleno (`anystring`, `anydate`, `1`) que el backend real va a rechazar. Los IDs de path params tienen que existir en el backend para los casos 2xx.
-- Credenciales `cambiame` en la request OAuth2 autogenerada.
+In the generated environment, tell them to review:
+- Empty token variables: `<scheme>`, `not_authorized_token`, `forbidden_token` (and `<scheme>2..N` / `application_token` if scopes were used).
+- Empty `host`, if there was no `host` and no matching pattern.
+- Filler values (`anystring`, `anydate`, `1`) that the real backend will reject. Path param IDs must exist in the backend for the 2xx cases.
+- `cambiame` credentials in the autogenerated OAuth2 request.
 
-Nota: todas las colecciones generadas comparten el mismo `_postman_id` (y todos los entornos el mismo `id`). Al importar varias en la app de Postman, puede pedir reemplazar una por otra.
+Note: all generated collections share the same `_postman_id` (and all environments the same `id`). When importing several into the Postman app, it may ask to replace one with another.
 
-## Fuera de alcance
+## Out of scope
 
-Esta skill no cubre:
-- Instalar la herramienta (ver skill `instalar-openapi2postman`)
-- Ejecutar la colección (Postman, Newman, pipelines) ni interpretar sus resultados
-- Corregir el spec OpenAPI más allá de los workarounds mínimos listados
+This skill does not cover:
+- Installing the tool (see the `instalar-openapi2postman` skill)
+- Running the collection (Postman, Newman, pipelines) or interpreting its results
+- Fixing the OpenAPI spec beyond the minimal workarounds listed

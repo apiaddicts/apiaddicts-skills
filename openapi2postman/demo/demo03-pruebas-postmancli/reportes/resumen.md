@@ -1,29 +1,29 @@
-# Resumen de ejecución: httpbin_DEMO
+# Run summary: httpbin_DEMO
 
-- Casos de prueba (requests): 8 | pasados: 3 | fallidos: 5 | éxito: 38%
-- Assertions: 10 | fallidas: 5
-- Duración: 2.2 s
+- Test cases (requests): 8 | passed: 3 | failed: 5 | success: 38%
+- Assertions: 10 | failed: 5
+- Duration: 2.2 s
 
-## Por carpeta
+## By folder
 
-| Carpeta | Pasados | Fallidos |
+| Folder | Passed | Failed |
 |---|---|---|
 | 001.bearer | 2 | 0 |
 | 002.post | 1 | 5 |
 
-## Motivos de fallo más frecuentes
+## Most frequent failure reasons
 
-- 5 × status esperado 400, recibido 200
+- 5 × expected status 400, got 200
 
-## Casos fallidos
+## Failed cases
 
-- **TC.002.001.400a Error without.name** (POST, respondió 200)
-  - Status code is 400: status esperado 400, recibido 200
-- **TC.002.001.400b Error without.age** (POST, respondió 200)
-  - Status code is 400: status esperado 400, recibido 200
-- **TC.002.001.400c Error with.name.wrong** (POST, respondió 200)
-  - Status code is 400: status esperado 400, recibido 200
-- **TC.002.001.400d Error with.age.wrong** (POST, respondió 200)
-  - Status code is 400: status esperado 400, recibido 200
-- **TC.002.001.400e Error with.vaccinated.wrong** (POST, respondió 200)
-  - Status code is 400: status esperado 400, recibido 200
+- **TC.002.001.400a Error without.name** (POST, responded 200)
+  - Status code is 400: expected status 400, got 200
+- **TC.002.001.400b Error without.age** (POST, responded 200)
+  - Status code is 400: expected status 400, got 200
+- **TC.002.001.400c Error with.name.wrong** (POST, responded 200)
+  - Status code is 400: expected status 400, got 200
+- **TC.002.001.400d Error with.age.wrong** (POST, responded 200)
+  - Status code is 400: expected status 400, got 200
+- **TC.002.001.400e Error with.vaccinated.wrong** (POST, responded 200)
+  - Status code is 400: expected status 400, got 200

@@ -1,28 +1,28 @@
-# Demo 01: generación de la colección
+# Demo 01: collection generation
 
-Genera contract tests Postman desde `httpbin.yaml` con openapi2postman (skill `generar-coleccion-postman`).
+Generates Postman contract tests from `httpbin.yaml` with openapi2postman (skill `generar-coleccion-postman`).
 
-## Requisitos
+## Requirements
 
-openapi2postman instalado (skill `instalar-openapi2postman`), por ejemplo `npm install -g openapi2postman`.
+openapi2postman installed (skill `instalar-openapi2postman`), for example `npm install -g openapi2postman`.
 
-## Archivos
+## Files
 
-- `httpbin.yaml`: OpenAPI 3.0.3 con `GET /bearer` (security `bearerAuth`) y `POST /post` (body `Mascota`).
-- `o2p_config.json`: un entorno `DEMO` con:
-  - `host_server_pattern: "%httpbin%"`: toma el host de `servers`.
-  - `is_inline: true`: números y booleanos viajan con su tipo real.
-  - `validate_schema: true`: activa la validación AJV de las respuestas.
+- `httpbin.yaml`: OpenAPI 3.0.3 with `GET /bearer` (security `bearerAuth`) and `POST /post` (body `Mascota`).
+- `o2p_config.json`: a `DEMO` environment with:
+  - `host_server_pattern: "%httpbin%"`: takes the host from `servers`.
+  - `is_inline: true`: numbers and booleans are sent with their real type.
+  - `validate_schema: true`: enables AJV validation of the responses.
 
-## Ejecutar
+## Run
 
-Desde esta carpeta (el `-c` tiene que estar dentro de la carpeta actual):
+From this folder (the `-c` file must be inside the current folder):
 
 ```bash
 o2p -c o2p_config.json -f httpbin.yaml
 ```
 
-Salida esperada:
+Expected output:
 
 ```
 Test: GET /bearer-401 (main test) without schema validation test because it has a different response than 'application/json'
@@ -31,11 +31,11 @@ Collection out/httpbin_DEMO.postman_collection.json was succesfully created
 Environment out/httpbin_DEMO_env.postman_environment.json was succesfully created
 ```
 
-Los dos warnings son normales: los 401 y 400 no tienen schema de respuesta JSON.
+The two warnings are normal: the 401 and 400 responses have no JSON response schema.
 
-## Resultado (`out/`)
+## Result (`out/`)
 
-8 casos de prueba:
+8 test cases:
 
 ```
 001.bearer
@@ -52,4 +52,4 @@ Los dos warnings son normales: los 401 y 400 no tienen schema de respuesta JSON.
     TC.002.001.400e Error with.vaccinated.wrong  {...,"vaccinated":"badboolean"}
 ```
 
-Entorno generado: `host = https://httpbin.org`, `bearerAuth = ""`, `not_authorized_token = ""`. **`bearerAuth` hay que completarlo antes de ejecutar** (las demos 02 y 03 lo pasan con `--env-var`).
+Generated environment: `host = https://httpbin.org`, `bearerAuth = ""`, `not_authorized_token = ""`. **`bearerAuth` must be filled in before running** (demos 02 and 03 pass it with `--env-var`).

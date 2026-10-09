@@ -4,7 +4,7 @@
   "groupings": [
     {
       "title": "openapi2postman",
-      "description": "Skills para generar y ejecutar contract tests (colecciones Postman) a partir de OpenAPI usando openapi2postman (apiaddicts/openapi2postman).",
+      "description": "Skills to generate and run contract tests (Postman collections) from OpenAPI using openapi2postman (apiaddicts/openapi2postman).",
       "skills": [
         "instalar-openapi2postman",
         "generar-coleccion-postman",

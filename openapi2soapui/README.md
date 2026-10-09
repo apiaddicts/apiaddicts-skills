@@ -1,36 +1,36 @@
 # openapi2soapui skills
 
-Estas skills automatizan el uso de [openapi2soapui](https://github.com/apiaddicts/openapi2soapui): llamar su API para generar un proyecto SoapUI a partir de un spec OpenAPI, y luego instalar/ejecutar el TestRunner de SoapUI para correr ese proyecto desde línea de comandos o pipeline. No reemplazan la herramienta — automatizan cómo invocarla.
+These skills automate the use of [openapi2soapui](https://github.com/apiaddicts/openapi2soapui): calling its API to generate a SoapUI project from an OpenAPI spec, and then installing/running the SoapUI TestRunner to run that project from the command line or a pipeline. They do not replace the tool — they automate how to invoke it.
 
-Empaquetadas para instalarse con `npx skills`, funcionan en cualquier agente compatible (Claude Code, Cursor, Codex, OpenCode, y más). Ver [vercel-labs/skills](https://github.com/vercel-labs/skills).
+Packaged to be installed with `npx skills`, they work with any compatible agent (Claude Code, Cursor, Codex, OpenCode, and more). See [vercel-labs/skills](https://github.com/vercel-labs/skills).
 
-## Instalación
+## Installation
 
 ```bash
-# Instalar todas las skills, para un agente específico
+# Install all skills, for a specific agent
 npx skills add apiaddicts/openapi2soapui-skills --skill '*' -a claude-code
 
-# Instalación interactiva (elegir skills)
+# Interactive installation (choose skills)
 npx skills add apiaddicts/openapi2soapui-skills
 
-# Desde una copia local (para probar antes de publicar)
+# From a local copy (to test before publishing)
 npx skills add ./openapi2soapui-skills
 ```
 
-## Skills incluidas
+## Included skills
 
-| Skill | Qué hace |
+| Skill | What it does |
 |---|---|
-| [`generar-proyecto-soapui`](skills/generar-proyecto-soapui) | Llama la API de openapi2soapui (`POST /soap-ui-projects`) para generar el XML de un proyecto SoapUI a partir de un spec OpenAPI (v2/v3), incluyendo el contrato completo del request: parámetros, defaults y validaciones. |
-| [`ejecutar-proyecto-soapui`](skills/ejecutar-proyecto-soapui) | Instala/localiza y ejecuta el SoapUI TestRunner CLI para correr un proyecto SoapUI ya generado, sin necesitar la app de escritorio completa (Java+jar de Maven, Docker oficial, o localizar una instalación existente). |
+| [`generar-proyecto-soapui`](skills/generar-proyecto-soapui) | Calls the openapi2soapui API (`POST /soap-ui-projects`) to generate the XML of a SoapUI project from an OpenAPI spec (v2/v3), including the full request contract: parameters, defaults and validations. |
+| [`ejecutar-proyecto-soapui`](skills/ejecutar-proyecto-soapui) | Installs/locates and runs the SoapUI TestRunner CLI to run an already generated SoapUI project, without needing the full desktop app (Java + Maven jar, official Docker image, or locating an existing installation). |
 
-Flujo típico: generar el proyecto vía API con `generar-proyecto-soapui` → ejecutar el `.xml` resultante con `ejecutar-proyecto-soapui`.
+Typical flow: generate the project via the API with `generar-proyecto-soapui` → run the resulting `.xml` with `ejecutar-proyecto-soapui`.
 
-## Dependencias externas por skill
+## External dependencies per skill
 
-- `generar-proyecto-soapui`: el servicio openapi2soapui corriendo y accesible (la skill pregunta la URL base, nunca la asume).
-- `ejecutar-proyecto-soapui`: uno de los siguientes, según el entorno del usuario — JDK + Maven (para resolver el jar de SoapUI Core), Docker (para la imagen oficial `smartbear/soapuios-testrunner`), o una instalación existente de SoapUI de escritorio.
+- `generar-proyecto-soapui`: the openapi2soapui service running and reachable (the skill asks for the base URL, it never assumes it).
+- `ejecutar-proyecto-soapui`: one of the following, depending on the user's environment — JDK + Maven (to resolve the SoapUI Core jar), Docker (for the official `smartbear/soapuios-testrunner` image), or an existing SoapUI desktop installation.
 
-## Origen
+## Origin
 
-Automatiza el uso de [apiaddicts/openapi2soapui](https://github.com/apiaddicts/openapi2soapui), la herramienta que convierte specs OpenAPI en proyectos SoapUI. Estas skills no la reemplazan — documentan y automatizan cómo llamarla y cómo ejecutar lo que genera.
+Automates the use of [apiaddicts/openapi2soapui](https://github.com/apiaddicts/openapi2soapui), the tool that converts OpenAPI specs into SoapUI projects. These skills do not replace it — they document and automate how to call it and how to run what it generates.

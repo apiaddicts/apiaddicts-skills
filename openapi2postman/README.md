@@ -1,42 +1,42 @@
 # openapi2postman skills
 
-Estas skills automatizan el uso de [openapi2postman](https://github.com/apiaddicts/openapi2postman) para crear contract tests: generar colecciones Postman a partir de un spec OpenAPI y ejecutarlas desde línea de comandos o pipeline. No reemplazan la herramienta — automatizan cómo invocarla.
+These skills automate the use of [openapi2postman](https://github.com/apiaddicts/openapi2postman) to create contract tests: generate Postman collections from an OpenAPI spec and run them from the command line or a pipeline. They do not replace the tool — they automate how to invoke it.
 
-Empaquetadas para instalarse con `npx skills`, funcionan en cualquier agente compatible (Claude Code, Cursor, Codex, OpenCode, y más). Ver [vercel-labs/skills](https://github.com/vercel-labs/skills).
+Packaged to be installed with `npx skills`, they work in any compatible agent (Claude Code, Cursor, Codex, OpenCode, and more). See [vercel-labs/skills](https://github.com/vercel-labs/skills).
 
-## Instalación
+## Installation
 
 ```bash
-# Instalar todas las skills, para un agente específico
+# Install all skills, for a specific agent
 npx skills add apiaddicts/openapi2postman-skills --skill '*' -a claude-code
 
-# Instalación interactiva (elegir skills)
+# Interactive installation (choose skills)
 npx skills add apiaddicts/openapi2postman-skills
 
-# Desde una copia local (para probar antes de publicar)
+# From a local copy (to test before publishing)
 npx skills add ./openapi2postman-skills
 ```
 
-## Skills incluidas
+## Included skills
 
-| Skill | Qué hace |
+| Skill | What it does |
 |---|---|
-| [`instalar-openapi2postman`](skills/instalar-openapi2postman) | Instala la herramienta openapi2postman (`o2p`): global con npm, como dependencia local del proyecto/pipeline, o desde el código fuente. Incluye requisitos reales (Node 16+), verificación y limitaciones conocidas (p. ej. `npx` no funciona). |
-| [`generar-coleccion-postman`](skills/generar-coleccion-postman) | Genera contract tests en formato Postman (colección + entorno) desde un spec OpenAPI con `o2p`: archivo de configuración completo, casos generados (2xx, 400, 401, 403, 404), autenticación y limitaciones verificadas del spec. |
-| [`ejecutar-pruebas-postman`](skills/ejecutar-pruebas-postman) | Ejecuta la colección con Newman o Postman CLI: comprueba si la herramienta está instalada (si no, pide permiso para instalarla global o temporal con `npx`), pregunta formato de reporte (cli, json, junit, html) y carpeta de salida, y resume pruebas pasadas/fallidas con sus motivos. |
+| [`instalar-openapi2postman`](skills/instalar-openapi2postman) | Installs the openapi2postman tool (`o2p`): globally with npm, as a local project/pipeline dependency, or from source. Includes the actual requirements (Node 16+), verification and known limitations (e.g. `npx` does not work). |
+| [`generar-coleccion-postman`](skills/generar-coleccion-postman) | Generates contract tests in Postman format (collection + environment) from an OpenAPI spec with `o2p`: full configuration file, generated cases (2xx, 400, 401, 403, 404), authentication and verified spec limitations. |
+| [`ejecutar-pruebas-postman`](skills/ejecutar-pruebas-postman) | Runs the collection with Newman or Postman CLI: checks whether the tool is installed (if not, asks permission to install it globally or temporarily with `npx`), asks for the report format (cli, json, junit, html) and output folder, and summarizes passed/failed tests with their reasons. |
 
-Flujo típico: instalar la herramienta con `instalar-openapi2postman` → generar la colección con `generar-coleccion-postman` → ejecutarla con `ejecutar-pruebas-postman`.
+Typical flow: install the tool with `instalar-openapi2postman` → generate the collection with `generar-coleccion-postman` → run it with `ejecutar-pruebas-postman`.
 
 ## Demos
 
-La carpeta [`demo/`](demo) tiene casos de punta a punta contra [httpbin.org](https://httpbin.org): generación de la colección, ejecución con Newman y ejecución con Postman CLI, con sus reportes.
+The [`demo/`](demo) folder has end-to-end cases against [httpbin.org](https://httpbin.org): collection generation, a run with Newman and a run with Postman CLI, with their reports.
 
-## Dependencias externas por skill
+## External dependencies per skill
 
-- `instalar-openapi2postman`: Node.js 16+ y npm. `git` solo si se instala desde el código fuente.
-- `ejecutar-pruebas-postman`: Node.js + npm, y Newman o Postman CLI (la skill ofrece instalarlos). Acceso de red al host de la API.
-- `generar-coleccion-postman`: openapi2postman instalado y un spec OpenAPI en YAML (2.0, 3.0–3.0.3, 3.1–3.1.2 o 3.2).
+- `instalar-openapi2postman`: Node.js 16+ and npm. `git` only if installing from source.
+- `ejecutar-pruebas-postman`: Node.js + npm, and Newman or Postman CLI (the skill offers to install them). Network access to the API host.
+- `generar-coleccion-postman`: openapi2postman installed and an OpenAPI spec in YAML (2.0, 3.0–3.0.3, 3.1–3.1.2 or 3.2).
 
-## Origen
+## Origin
 
-Automatiza el uso de [apiaddicts/openapi2postman](https://github.com/apiaddicts/openapi2postman), la herramienta que convierte specs OpenAPI en colecciones Postman con contract tests. Estas skills no la reemplazan — documentan y automatizan cómo llamarla y cómo ejecutar lo que genera.
+Automates the use of [apiaddicts/openapi2postman](https://github.com/apiaddicts/openapi2postman), the tool that converts OpenAPI specs into Postman collections with contract tests. These skills do not replace it — they document and automate how to call it and how to run what it generates.

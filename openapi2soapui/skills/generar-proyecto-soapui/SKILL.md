@@ -1,83 +1,83 @@
 ---
 name: generar-proyecto-soapui
-description: Enseña cómo llamar la API propia de este repo (openapi2soapui) para generar un proyecto SoapUI en XML a partir de un spec OpenAPI, incluyendo el contrato completo del request (parámetros, defaults, validaciones). Úsala cuando el usuario pida generar el proyecto/colección SoapUI con la API, llamar al endpoint de openapi2soapui, crear la colección vía API, o necesite saber qué parámetros/configuración acepta la generación (oAuth2Profiles, headers, customAuthorizationsFile, testCaseNames, flags como readOnly/hasScopes/validateSchema, etc.), incluso si no menciona el nombre exacto del endpoint. NO cubre ejecutar las pruebas generadas con SoapUI TestRunner ni levantar el servicio con Docker — para eso no uses esta skill.
+description: Teaches how to call this repo's own API (openapi2soapui) to generate a SoapUI project in XML from an OpenAPI spec, including the full request contract (parameters, defaults, validations). Use it when the user asks to generate the SoapUI project/collection with the API, call the openapi2soapui endpoint, create the collection via the API, or needs to know which parameters/configuration the generation accepts (oAuth2Profiles, headers, customAuthorizationsFile, testCaseNames, flags such as readOnly/hasScopes/validateSchema, etc.), even if they don't mention the exact endpoint name. It does NOT cover running the generated tests with SoapUI TestRunner or starting the service with Docker — do not use this skill for that.
 ---
 
-# Generar proyecto SoapUI vía API de openapi2soapui
+# Generate a SoapUI project via the openapi2soapui API
 
-Esta skill cubre **solo** cómo llamar el endpoint de este repo que genera un proyecto SoapUI a partir de un spec OpenAPI, y qué configuración acepta. No cubre ejecutar el proyecto generado (SoapUI TestRunner) ni levantar el servicio (Docker/Maven) — si el usuario pide eso, es trabajo aparte.
+This skill covers **only** how to call this repo's endpoint that generates a SoapUI project from an OpenAPI spec, and what configuration it accepts. It does not cover running the generated project (SoapUI TestRunner) or starting the service (Docker/Maven) — if the user asks for that, it is separate work.
 
-## Paso 0 — obtener la URL base (obligatorio)
+## Step 0 — get the base URL (mandatory)
 
-La URL base del servicio (host:puerto, ej. `http://localhost:8080`) **nunca se asume**. Si no está ya confirmada en la conversación actual, pregúntala al usuario antes de construir cualquier request. No uses `localhost:8080` por defecto sin que el usuario lo confirme — puede estar corriendo en otro puerto, en Docker con otro mapeo, o en un host remoto.
+The service base URL (host:port, e.g. `http://localhost:8080`) is **never assumed**. If it has not already been confirmed in the current conversation, ask the user for it before building any request. Do not default to `localhost:8080` without the user confirming it — it may be running on a different port, in Docker with a different mapping, or on a remote host.
 
-El basepath del endpoint sí es fijo (viene de `application.properties`): `/api-openapi-to-soapui/v1`.
+The endpoint basepath, however, is fixed (it comes from `application.properties`): `/api-openapi-to-soapui/v1`.
 
-## Construir el request
+## Build the request
 
-1. **Codificar el spec OpenAPI a base64.**
+1. **Encode the OpenAPI spec to base64.**
 
    Bash:
    ```bash
-   SPEC_B64=$(base64 -w0 archivo.yaml)
+   SPEC_B64=$(base64 -w0 spec.yaml)
    ```
 
    PowerShell:
    ```powershell
-   $SpecB64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes("archivo.yaml"))
+   $SpecB64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes("spec.yaml"))
    ```
 
-2. **Armar el JSON body.** Mínimo viable:
+2. **Assemble the JSON body.** Minimum viable:
    ```json
    {
-     "apiName": "MiApi",
+     "apiName": "MyApi",
      "openApiSpec": "<base64>",
      "headers": []
    }
    ```
-   Ver la tabla completa de parámetros más abajo para agregar configuración opcional.
+   See the full parameter table below to add optional configuration.
 
-3. **Llamar el endpoint:**
+3. **Call the endpoint:**
    ```
    POST {baseUrl}/api-openapi-to-soapui/v1/soap-ui-projects
    Content-Type: application/json
    ```
-   La respuesta (`produces: application/xml`) es el **XML crudo del proyecto SoapUI** — no viene envuelto en JSON. Guarda el body de la respuesta directo a un archivo `.xml`.
+   The response (`produces: application/xml`) is the **raw SoapUI project XML** — it is not wrapped in JSON. Save the response body directly to a `.xml` file.
 
-   Ejemplo bash:
+   Bash example:
    ```bash
    curl -s -X POST "$BASE_URL/api-openapi-to-soapui/v1/soap-ui-projects" \
      -H "Content-Type: application/json" \
      --data @request.json \
-     -o proyecto-soapui.xml \
+     -o soapui-project.xml \
      -w "HTTP %{http_code}\n"
    ```
 
-## Referencia completa de parámetros (`SoapUIProjectRequest`)
+## Full parameter reference (`SoapUIProjectRequest`)
 
-Solo `apiName` y `openApiSpec` son requeridos. Todo lo demás es opcional.
+Only `apiName` and `openApiSpec` are required. Everything else is optional.
 
-| Parámetro | Tipo | Default | Efecto |
+| Parameter | Type | Default | Effect |
 |---|---|---|---|
-| `apiName` | String | — (requerido) | Nombre base del proyecto/servicio generado |
-| `openApiSpec` | String (base64) | — (requerido) | Contenido del spec OpenAPI v2 o v3, codificado en base64 |
-| `oAuth2Profiles` | Lista de OAuth2Profile | — | Perfiles de autenticación OAuth2 a agregar al proyecto (ver sección abajo) |
-| `testCaseNames` | Set de String | ninguno | Nombres de test cases custom adicionales; cada nombre debe ser no-vacío |
-| `headers` | Lista de `{key,value}` | ninguno | Headers aplicados a todos los recursos generados |
-| `customAuthorizationsFile` | Lista de CustomAuthorizationRequest | — | Requests de bootstrap de auth previos a las pruebas (ver sección abajo) |
-| `readOnly` | Boolean | `false` | Solo genera test cases para métodos GET/OPTIONS |
-| `serverPattern` | String (ej. `"%dev%"`) | primer server del spec | Filtra qué `server` del spec usar, por substring envuelto en `%`; si no matchea o se omite, usa el primero declarado |
-| `minimalEndpoints` | Boolean | `false` | Colapsa la generación de `CaseErrorRequired{Field}` a como máximo uno por operación en vez de uno por campo requerido |
-| `microcksHeaders` | Boolean | `false` | Agrega header `X-Microcks-Response-Name`; si el usuario ya manda un header custom con ese mismo nombre, se preserva el del usuario |
-| `generateOneOfAnyOf` | Boolean | `false` | Resuelve `oneOf`/`anyOf` al primer candidato al generar ejemplos. `allOf` siempre se mergea, sin importar este flag |
-| `validateSchema` | Boolean | `true` | Agrega el Script Assertion que valida el JSON Schema de la respuesta. El assertion de status code se agrega siempre, sin importar este flag |
-| `schemaIsInline` | Boolean | `false` | `false` = schema como SoapUI Project Property referenciada vía `context.expand`; `true` = schema literal embebido en el script |
-| `schemaPrettyPrint` | Boolean | `true` | Schema con indentación (`true`) vs compacto (`false`) |
-| `isInline` | Boolean | `false` | Controla si los valores de ejemplo del **body** van como Project Property o literal. Los valores de **query params siempre son literales**, sin importar este flag |
-| `hasScopes` | Boolean | `false` | Genera test cases `OkScope{profileName}` extra por perfil OAuth2. No tiene efecto si `oAuth2Profiles` tiene 0 o 1 entradas |
-| `applicationToken` | Boolean | `false` | Solo relevante si `hasScopes=true`; genera casos `OkApplicationToken{profileName}` para perfiles con `grantType=CLIENT_CREDENTIALS` |
-| `numberOfScopes` | Integer | `1` | Solo relevante si `hasScopes=true`; valores menores a 1 se tratan como 1 |
-| `examples` | ExamplesConfig | — | Overrides de valores de ejemplo (ver sección abajo) |
+| `apiName` | String | — (required) | Base name of the generated project/service |
+| `openApiSpec` | String (base64) | — (required) | Content of the OpenAPI v2 or v3 spec, base64-encoded |
+| `oAuth2Profiles` | List of OAuth2Profile | — | OAuth2 authentication profiles to add to the project (see section below) |
+| `testCaseNames` | Set of String | none | Names of additional custom test cases; each name must be non-empty |
+| `headers` | List of `{key,value}` | none | Headers applied to all generated resources |
+| `customAuthorizationsFile` | List of CustomAuthorizationRequest | — | Auth bootstrap requests run before the tests (see section below) |
+| `readOnly` | Boolean | `false` | Only generates test cases for GET/OPTIONS methods |
+| `serverPattern` | String (e.g. `"%dev%"`) | first server in the spec | Filters which `server` from the spec to use, by substring wrapped in `%`; if it doesn't match or is omitted, the first declared one is used |
+| `minimalEndpoints` | Boolean | `false` | Collapses `CaseErrorRequired{Field}` generation to at most one per operation instead of one per required field |
+| `microcksHeaders` | Boolean | `false` | Adds the `X-Microcks-Response-Name` header; if the user already sends a custom header with that same name, the user's header is preserved |
+| `generateOneOfAnyOf` | Boolean | `false` | Resolves `oneOf`/`anyOf` to the first candidate when generating examples. `allOf` is always merged, regardless of this flag |
+| `validateSchema` | Boolean | `true` | Adds the Script Assertion that validates the response JSON Schema. The status code assertion is always added, regardless of this flag |
+| `schemaIsInline` | Boolean | `false` | `false` = schema as a SoapUI Project Property referenced via `context.expand`; `true` = literal schema embedded in the script |
+| `schemaPrettyPrint` | Boolean | `true` | Indented schema (`true`) vs compact (`false`) |
+| `isInline` | Boolean | `false` | Controls whether the **body** example values go as a Project Property or literal. **Query param values are always literal**, regardless of this flag |
+| `hasScopes` | Boolean | `false` | Generates extra `OkScope{profileName}` test cases per OAuth2 profile. Has no effect if `oAuth2Profiles` has 0 or 1 entries |
+| `applicationToken` | Boolean | `false` | Only relevant if `hasScopes=true`; generates `OkApplicationToken{profileName}` cases for profiles with `grantType=CLIENT_CREDENTIALS` |
+| `numberOfScopes` | Integer | `1` | Only relevant if `hasScopes=true`; values lower than 1 are treated as 1 |
+| `examples` | ExamplesConfig | — | Example value overrides (see section below) |
 
 ### `examples` (ExamplesConfig)
 
@@ -89,21 +89,21 @@ Solo `apiName` y `openApiSpec` son requeridos. Todo lo demás es opcional.
   }
 }
 ```
-- `successful` sobreescribe los valores usados en los casos positivos (`CaseOkAllProperties`/`CaseOkRequiredProperties`).
-- `wrong` sobreescribe los valores usados en los negativos `CaseErrorRequired{Field}`, en vez de omitir/vaciar el campo.
-- Ambos solo sustituyen valores escalares hoja (string/number/boolean/date/dateTime/array/object) — no afectan cómo se resuelve `oneOf`/`anyOf`/`allOf`.
-- En query params, si el formato es reconocido (ej. `email`), la herramienta genera una muestra realista que tiene precedencia sobre el `"string"` configurado.
+- `successful` overrides the values used in the positive cases (`CaseOkAllProperties`/`CaseOkRequiredProperties`).
+- `wrong` overrides the values used in the negative `CaseErrorRequired{Field}` cases, instead of omitting/emptying the field.
+- Both only replace leaf scalar values (string/number/boolean/date/dateTime/array/object) — they don't affect how `oneOf`/`anyOf`/`allOf` are resolved.
+- In query params, if the format is recognized (e.g. `email`), the tool generates a realistic sample that takes precedence over the configured `"string"`.
 
-## OAuth2Profiles en detalle
+## OAuth2Profiles in detail
 
-Dos formas de definir un perfil:
+Two ways to define a profile:
 
-**Ya tengo el token:**
+**I already have the token:**
 ```json
 { "profileName": "prod", "accessToken": "abc123..." }
 ```
 
-**Necesito que se obtenga el token** (agrega `grantType` y los campos que ese grant type requiere):
+**I need the token to be obtained** (add `grantType` and the fields that grant type requires):
 ```json
 {
   "profileName": "dev",
@@ -118,20 +118,20 @@ Dos formas de definir un perfil:
 }
 ```
 
-`profileName` siempre es requerido. Los demás campos son condicionalmente requeridos según `grantType` — si falta uno, el error 1208 indica cuál:
+`profileName` is always required. The other fields are conditionally required depending on `grantType` — if one is missing, error 1208 indicates which:
 
-| `grantType` | Campos que se vuelven obligatorios |
+| `grantType` | Fields that become mandatory |
 |---|---|
 | `AUTHORIZATION_CODE` | `clientId`, `clientSecret`, `accessTokenURI`, `authorizationURI`, `redirectURI`, `accessTokenPosition` |
 | `CLIENT_CREDENTIALS` | `clientId`, `clientSecret`, `accessTokenURI`, `accessTokenPosition` |
 | `RESOURCE_OWNER_PASSWORD_CREDENTIALS` | `clientId`, `clientSecret`, `username`, `password`, `accessTokenURI`, `accessTokenPosition` |
 | `IMPLICIT` | `clientId`, `authorizationURI`, `redirectURI`, `accessTokenPosition` |
 
-`accessTokenPosition` es uno de: `HEADER`, `BODY`, `QUERY`.
+`accessTokenPosition` is one of: `HEADER`, `BODY`, `QUERY`.
 
-## customAuthorizationsFile en detalle
+## customAuthorizationsFile in detail
 
-Cada entrada define un request de bootstrap de autenticación (ej. un fetch de token) que se ejecuta antes de las pruebas normales:
+Each entry defines an authentication bootstrap request (e.g. a token fetch) that runs before the regular tests:
 
 ```json
 {
@@ -144,32 +144,32 @@ Cada entrada define un request de bootstrap de autenticación (ej. un fetch de t
 }
 ```
 
-- `name`, `method`, `endpoint` son requeridos. `method` es case-insensitive pero debe matchear `GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS`.
-- `headers`, `mediaType`, `body` son opcionales.
-- Genera una **TestSuite separada** llamada `authorizations_{apiName}_{apiVersion}-Suite`, ubicada antes de las test suites normales por endpoint, con un TestCase `{method}_Case{name}` por cada entrada.
+- `name`, `method`, `endpoint` are required. `method` is case-insensitive but must match `GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS`.
+- `headers`, `mediaType`, `body` are optional.
+- Generates a **separate TestSuite** named `authorizations_{apiName}_{apiVersion}-Suite`, placed before the regular per-endpoint test suites, with one `{method}_Case{name}` TestCase per entry.
 
-## Diagnosticar un 400 rápido
+## Quickly diagnosing a 400
 
-| Código | Causa |
+| Code | Cause |
 |---|---|
-| 1001 | `apiName` vacío o faltante |
-| 1002 | `openApiSpec` vacío o faltante |
-| 1100 | El contenido de `openApiSpec` no es YAML/JSON válido tras decodificar el base64 |
-| 1101 | El contenido no cumple la estructura de OpenAPI v2/v3 |
-| 1102 | No se encontró `info.version` en el spec |
-| 1208 | `oAuth2Profiles` — falta un campo condicionalmente requerido según el `grantType` (el mensaje indica cuál) |
-| 1301 / 1302 | `headers.key` o `headers.value` vacío |
-| 1401 | `testCaseNames` tiene un item vacío |
-| 1501 / 1502 / 1503 | `customAuthorizationsFile` — falta `name`/`method`/`endpoint` |
-| 1504 | `customAuthorizationsFile.method` no matchea los verbos HTTP permitidos |
+| 1001 | `apiName` empty or missing |
+| 1002 | `openApiSpec` empty or missing |
+| 1100 | The `openApiSpec` content is not valid YAML/JSON after base64 decoding |
+| 1101 | The content does not conform to the OpenAPI v2/v3 structure |
+| 1102 | `info.version` was not found in the spec |
+| 1208 | `oAuth2Profiles` — a conditionally required field for the `grantType` is missing (the message indicates which) |
+| 1301 / 1302 | `headers.key` or `headers.value` empty |
+| 1401 | `testCaseNames` has an empty item |
+| 1501 / 1502 / 1503 | `customAuthorizationsFile` — `name`/`method`/`endpoint` missing |
+| 1504 | `customAuthorizationsFile.method` does not match the allowed HTTP verbs |
 
-## Nota sobre el spec propio publicado
+## Note on the service's own published spec
 
-El propio `api.yaml` del servicio (`src/main/resources/static/api.yaml`) tiene un typo conocido en el discriminator `oneOf` de `OAuth2ProfileToGetToken`: el mapping entre `IMPLICIT` y `RESOURCE_OWNER_PASSWORD_CREDENTIALS` está invertido. No afecta la validación real (que corre en Java vía `AuthenticationConditionalValidator`), solo es ruido en esa documentación — no te confundas si lo comparás contra ese YAML.
+The service's own `api.yaml` (`src/main/resources/static/api.yaml`) has a known typo in the `oneOf` discriminator of `OAuth2ProfileToGetToken`: the mapping between `IMPLICIT` and `RESOURCE_OWNER_PASSWORD_CREDENTIALS` is swapped. It doesn't affect the actual validation (which runs in Java via `AuthenticationConditionalValidator`), it's just noise in that documentation — don't get confused if you compare against that YAML.
 
-## Fuera de alcance
+## Out of scope
 
-Esta skill no cubre:
-- Ejecutar el proyecto generado con SoapUI TestRunner
-- Levantar el servicio (Docker Compose / Maven)
-- Modificar el XML del proyecto ya generado
+This skill does not cover:
+- Running the generated project with SoapUI TestRunner
+- Starting the service (Docker Compose / Maven)
+- Modifying the XML of an already generated project

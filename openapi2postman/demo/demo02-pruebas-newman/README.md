@@ -1,25 +1,25 @@
-# Demo 02: ejecución con Newman
+# Demo 02: running with Newman
 
-Genera la colección desde `httpbin.yaml` y la ejecuta con Newman (skill `ejecutar-pruebas-postman`).
+Generates the collection from `httpbin.yaml` and runs it with Newman (skill `ejecutar-pruebas-postman`).
 
-## Requisitos
+## Requirements
 
 - openapi2postman (skill `instalar-openapi2postman`)
-- Newman. La skill comprueba si está instalado y, si no, pide permiso para instalarlo:
+- Newman. The skill checks whether it is installed and, if not, asks permission to install it:
 - Global: `npm install -g newman newman-reporter-htmlextra`
-- Temporal (sin instalar): `npx -y -p newman@6 -p newman-reporter-htmlextra newman ...`
+- Temporary (without installing): `npx -y -p newman@6 -p newman-reporter-htmlextra newman ...`
 
-## 1. Generar la colección
+## 1. Generate the collection
 
 ```bash
 o2p -c o2p_config.json -f httpbin.yaml
 ```
 
-Genera `out/httpbin_DEMO.postman_collection.json` y `out/httpbin_DEMO_env.postman_environment.json` (detalle en [demo01](../demo01-generacion-coleccion)).
+Generates `out/httpbin_DEMO.postman_collection.json` and `out/httpbin_DEMO_env.postman_environment.json` (details in [demo01](../demo01-generacion-coleccion)).
 
-## 2. Ejecutar
+## 2. Run
 
-`bearerAuth` está vacío en el entorno generado, así que se pasa en la ejecución. `demo-token` es un token ficticio: httpbin acepta cualquiera.
+`bearerAuth` is empty in the generated environment, so it is passed at run time. `demo-token` is a dummy token: httpbin accepts any.
 
 ```bash
 newman run out/httpbin_DEMO.postman_collection.json \
@@ -31,34 +31,34 @@ newman run out/httpbin_DEMO.postman_collection.json \
   --reporter-htmlextra-export reportes/resultado.html
 ```
 
-El reporte HTML usa `newman-reporter-htmlextra`: el reporter `newman-reporter-html` no es compatible con Newman 6.
+The HTML report uses `newman-reporter-htmlextra`: the `newman-reporter-html` reporter is not compatible with Newman 6.
 
-Exit code esperado: `1`, porque hay tests que fallan a propósito.
+Expected exit code: `1`, because some tests fail on purpose.
 
-## 3. Resumen
+## 3. Summary
 
 ```bash
 node ../../skills/ejecutar-pruebas-postman/scripts/resumen-reporte.js reportes/resultado.json
 ```
 
-## Resultado esperado
+## Expected result
 
-| Caso | Resultado | Por qué |
+| Case | Result | Why |
 |---|---|---|
-| TC.001.001.200 `GET /bearer` con token | ✅ | 200 y schema válido |
-| TC.001.001.401 `GET /bearer` sin token | ✅ | 401 |
-| TC.002.001.200 `POST /post` | ✅ | 200 y schema válido (httpbin devuelve el body en `json`) |
-| TC.002.001.400a–e `POST /post` inválido | ❌ ×5 | `status esperado 400, recibido 200`: httpbin no valida el body. En una API real, esto indica que no cumple el contrato |
+| TC.001.001.200 `GET /bearer` with token | ✅ | 200 and valid schema |
+| TC.001.001.401 `GET /bearer` without token | ✅ | 401 |
+| TC.002.001.200 `POST /post` | ✅ | 200 and valid schema (httpbin returns the body in `json`) |
+| TC.002.001.400a–e invalid `POST /post` | ❌ ×5 | `expected status 400, got 200`: httpbin does not validate the body. In a real API, this means it does not comply with the contract |
 
-**8 casos: 3 pasados, 5 fallidos (38%). 10 assertions, 5 fallidas.** Resumen completo en [`reportes/resumen.md`](reportes/resumen.md).
+**8 cases: 3 passed, 5 failed (38%). 10 assertions, 5 failed.** Full summary in [`reportes/resumen.md`](reportes/resumen.md).
 
-## Reportes (`reportes/`)
+## Reports (`reportes/`)
 
-| Archivo | Formato |
+| File | Format |
 |---|---|
-| `resultado.json` | JSON con estructura Newman (entrada del resumen) |
-| `resultado.xml` | JUnit (un `testsuite` por caso) |
-| `resultado.html` | HTML navegable |
-| `resumen.md` | Salida del script de resumen |
+| `resultado.json` | JSON with Newman structure (summary input) |
+| `resultado.xml` | JUnit (one `testsuite` per case) |
+| `resultado.html` | Browsable HTML |
+| `resumen.md` | Output of the summary script |
 
-En los reportes guardados se reemplazó la IP pública que devuelve httpbin (`origin`) por `0.0.0.0`.
+In the saved reports, the public IP returned by httpbin (`origin`) was replaced with `0.0.0.0`.
